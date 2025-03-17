@@ -1,0 +1,24 @@
+{
+  "prompts": [
+    {
+      "text": "Always consider edge cases when coding.",
+      "tags": [
+        "best practices",
+        "coding"
+      ],
+      "associated_model_type": "thinking",
+      "rating": 4.5,
+      "uses": 10,
+      "last_used": "2025-03-16",
+      "created_by": "user1",
+      "ai_version_compatibility": [
+        "ChatGPT-4o",
+        "Claude 3.5"
+      ],
+      "deprecated": false,
+      "id": "p7_441e08d6",
+      "length": 39,
+      "history_log": []
+    }
+  ]
+}

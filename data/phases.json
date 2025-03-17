@@ -1,0 +1,39 @@
+{
+  "phases": [
+    {
+      "id": "1",
+      "name": "Conception",
+      "description": "Conceive and workshop idea with AI to produce a spec"
+    },
+    {
+      "id": "2",
+      "name": "Design & Architecture",
+      "description": "Design high-level architecture and component interactions"
+    },
+    {
+      "id": "3",
+      "name": "Planning",
+      "description": "Discuss implementation and generate prompt plan"
+    },
+    {
+      "id": "4",
+      "name": "Implementation",
+      "description": "Code development and implementation details"
+    },
+    {
+      "id": "5",
+      "name": "Testing",
+      "description": "Testing strategy and test case development"
+    },
+    {
+      "id": "6",
+      "name": "Deployment",
+      "description": "Deployment and release management"
+    },
+    {
+      "id": "7",
+      "name": "Maintenance",
+      "description": "Ongoing maintenance and support"
+    }
+  ]
+}
