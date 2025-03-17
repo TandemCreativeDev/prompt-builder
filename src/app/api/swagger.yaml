@@ -1,0 +1,553 @@
+openapi: 3.0.0
+info:
+  title: Prompt Builder API
+  description: API for managing prompt fragments and history in the Prompt Builder application
+  version: 1.0.0
+servers:
+  - url: /api
+    description: API Base URL
+paths:
+  /prompts/prefixes:
+    get:
+      summary: Retrieve all prefix prompts
+      responses:
+        '200':
+          description: A list of all prefix prompts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrefixesData'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a new prefix prompt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPromptFragment'
+      responses:
+        '201':
+          description: The newly created prefix prompt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptFragment'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update an existing prefix prompt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptFragment'
+      responses:
+        '200':
+          description: The updated prefix prompt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptFragment'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /prompts/suffixes:
+    get:
+      summary: Retrieve all suffix prompts
+      responses:
+        '200':
+          description: A list of all suffix prompts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuffixesData'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a new suffix prompt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPromptFragment'
+      responses:
+        '201':
+          description: The newly created suffix prompt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptFragment'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update an existing suffix prompt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptFragment'
+      responses:
+        '200':
+          description: The updated suffix prompt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptFragment'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /prompts/phases:
+    get:
+      summary: Retrieve phases configuration
+      responses:
+        '200':
+          description: Configuration for all phases
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhasesConfig'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /prompts/phases/{phaseId}:
+    parameters:
+      - name: phaseId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: ID of the phase
+    get:
+      summary: Retrieve all prompts for a specific phase
+      responses:
+        '200':
+          description: A list of all prompts for the specified phase
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhasePromptsData'
+        '404':
+          description: Phase not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseNotFoundError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a new prompt to a specific phase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPromptFragment'
+      responses:
+        '201':
+          description: The newly created phase prompt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptFragment'
+        '400':
+          description: Invalid phase ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidPhaseError'
+        '404':
+          description: Phase not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseNotFoundError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update an existing prompt in a specific phase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptFragment'
+      responses:
+        '200':
+          description: The updated phase prompt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptFragment'
+        '404':
+          description: Phase not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseNotFoundError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /history:
+    get:
+      summary: Retrieve prompt generation history
+      responses:
+        '200':
+          description: A list of all history entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptHistoryData'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a new history entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPromptHistoryEntry'
+      responses:
+        '201':
+          description: The newly created history entry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptHistoryEntry'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    HistoryLogEntry:
+      type: object
+      required:
+        - timestamp
+        - text
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the history log entry
+        text:
+          type: string
+          description: Text content of the history log entry
+    
+    PromptFragment:
+      type: object
+      required:
+        - id
+        - text
+        - tags
+        - uses
+        - created_by
+        - ai_version_compatibility
+        - length
+        - deprecated
+        - history_log
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the prompt fragment
+        text:
+          type: string
+          description: Text content of the prompt fragment
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the prompt fragment
+        associated_model_type:
+          type: string
+          description: Type of model this prompt is associated with
+        rating:
+          type: number
+          format: float
+          description: User rating of the prompt fragment
+        uses:
+          type: integer
+          description: Number of times the prompt has been used
+        last_used:
+          type: string
+          format: date
+          description: Date when the prompt was last used
+        created_by:
+          type: string
+          description: User who created the prompt
+        ai_version_compatibility:
+          type: array
+          items:
+            type: string
+          description: AI models compatible with this prompt
+        length:
+          type: integer
+          description: Length of the prompt text
+        deprecated:
+          type: boolean
+          description: Whether the prompt is deprecated
+        history_log:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryLogEntry'
+          description: History of changes to the prompt
+    
+    NewPromptFragment:
+      type: object
+      required:
+        - text
+        - tags
+        - created_by
+        - ai_version_compatibility
+      properties:
+        text:
+          type: string
+          description: Text content of the prompt fragment
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the prompt fragment
+        associated_model_type:
+          type: string
+          description: Type of model this prompt is associated with
+        rating:
+          type: number
+          format: float
+          description: User rating of the prompt fragment
+        uses:
+          type: integer
+          description: Number of times the prompt has been used
+        last_used:
+          type: string
+          format: date
+          description: Date when the prompt was last used
+        created_by:
+          type: string
+          description: User who created the prompt
+        ai_version_compatibility:
+          type: array
+          items:
+            type: string
+          description: AI models compatible with this prompt
+        deprecated:
+          type: boolean
+          description: Whether the prompt is deprecated
+    
+    PrefixesData:
+      type: object
+      required:
+        - prefixes
+      properties:
+        prefixes:
+          type: array
+          items:
+            $ref: '#/components/schemas/PromptFragment'
+          description: List of prefix prompts
+    
+    SuffixesData:
+      type: object
+      required:
+        - suffixes
+      properties:
+        suffixes:
+          type: array
+          items:
+            $ref: '#/components/schemas/PromptFragment'
+          description: List of suffix prompts
+    
+    PhasePromptsData:
+      type: object
+      required:
+        - prompts
+      properties:
+        prompts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PromptFragment'
+          description: List of prompts for a specific phase
+    
+    Phase:
+      type: object
+      required:
+        - id
+        - name
+        - description
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the phase
+        name:
+          type: string
+          description: Name of the phase
+        description:
+          type: string
+          description: Description of the phase
+    
+    PhasesConfig:
+      type: object
+      required:
+        - phases
+      properties:
+        phases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Phase'
+          description: List of phases
+    
+    PromptHistoryEntry:
+      type: object
+      required:
+        - id
+        - timestamp
+        - user_text
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the history entry
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the history entry
+        user_text:
+          type: string
+          description: Original text provided by the user
+        ai_refined_text:
+          type: string
+          description: Text refined by AI
+        prefix_id:
+          type: string
+          description: ID of the prefix used
+        suffix_id:
+          type: string
+          description: ID of the suffix used
+        phase_prompt_id:
+          type: string
+          description: ID of the phase prompt used
+        phase_number:
+          type: string
+          description: Phase number associated with this entry
+    
+    NewPromptHistoryEntry:
+      type: object
+      required:
+        - user_text
+      properties:
+        user_text:
+          type: string
+          description: Original text provided by the user
+        ai_refined_text:
+          type: string
+          description: Text refined by AI
+        prefix_id:
+          type: string
+          description: ID of the prefix used
+        suffix_id:
+          type: string
+          description: ID of the suffix used
+        phase_prompt_id:
+          type: string
+          description: ID of the phase prompt used
+        phase_number:
+          type: string
+          description: Phase number associated with this entry
+    
+    PromptHistoryData:
+      type: object
+      required:
+        - entries
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/PromptHistoryEntry'
+          description: List of history entries
+    
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+    
+    InvalidPhaseError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message about invalid phase ID
+    
+    PhaseNotFoundError:
+      type: object
+      required:
+        - error
+        - validPhases
+        - message
+      properties:
+        error:
+          type: string
+          description: Error message about phase not found
+        validPhases:
+          type: array
+          items:
+            type: string
+          description: List of valid phase IDs
+        message:
+          type: string
+          description: Helpful message about valid phases
