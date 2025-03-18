@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 
 // Import CSS for Swagger UI
-import 'swagger-ui-react/swagger-ui.css';
+import "swagger-ui-react/swagger-ui.css";
 
 // Dynamically import SwaggerUI React component with SSR disabled
 const SwaggerUI = dynamic(
-  () => import('swagger-ui-react').then((mod) => mod.default),
+  () => import("swagger-ui-react").then((mod) => mod.default),
   { ssr: false }
 );
 
@@ -23,20 +23,20 @@ export default function ApiDocs() {
     setIsMounted(true);
   }, []);
 
-  const [swaggerSpec, setSwaggerSpec] = useState<any>(null);
+  const [swaggerSpec, setSwaggerSpec] = useState<unknown>(null);
 
   // Fetch the API docs directly
   useEffect(() => {
     const fetchApiDocs = async () => {
       try {
-        const response = await fetch('/api/docs');
+        const response = await fetch("/api/docs");
         if (!response.ok) {
-          throw new Error('Failed to fetch API docs');
+          throw new Error("Failed to fetch API docs");
         }
         const data = await response.json();
         setSwaggerSpec(data);
       } catch (error) {
-        console.error('Error fetching API docs:', error);
+        console.error("Error fetching API docs:", error);
       }
     };
 
@@ -47,8 +47,10 @@ export default function ApiDocs() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Prompt Builder API Documentation</h1>
-      
+      <h1 className="text-2xl font-bold mb-4">
+        Prompt Builder API Documentation
+      </h1>
+
       {/* Only render SwaggerUI when component is mounted on client and spec is loaded */}
       {isMounted && swaggerSpec ? (
         <SwaggerUI spec={swaggerSpec} />
