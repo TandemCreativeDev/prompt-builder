@@ -1,7 +1,5 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Toast } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { 
   PrefixesData, 

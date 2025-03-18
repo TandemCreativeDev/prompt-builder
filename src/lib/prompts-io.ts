@@ -121,7 +121,10 @@ export async function updatePrefix(
     throw new Error(`Prefix with id ${prefix.id} not found`);
   }
 
-  prefixes.prefixes[index] = prefix;
+  prefixes.prefixes[index] = {
+    ...prefixes.prefixes[index],
+    ...prefix,
+  };
   await writePrefixes(prefixes);
   return prefixes;
 }
@@ -187,16 +190,18 @@ export async function addSuffix(suffix: PromptFragment): Promise<SuffixesData> {
  * @returns Promise resolving to the updated suffixes data
  */
 export async function updateSuffix(
-  suffix: PromptFragment
+  suffix: Partial<PromptFragment>
 ): Promise<SuffixesData> {
   const suffixes = await readSuffixes();
   const index = suffixes.suffixes.findIndex((s) => s.id === suffix.id);
 
-  if (index === -1) {
-    throw new Error(`Suffix with id ${suffix.id} not found`);
-  }
+  if (index === -1) throw new Error(`Suffix with id ${suffix.id} not found`);
 
-  suffixes.suffixes[index] = suffix;
+  suffixes.suffixes[index] = {
+    ...suffixes.suffixes[index],
+    ...suffix,
+  };
+
   await writeSuffixes(suffixes);
   return suffixes;
 }
@@ -289,7 +294,11 @@ export async function updatePhasePrompt(
     );
   }
 
-  phasePrompts.prompts[index] = prompt;
+  phasePrompts.prompts[index] = {
+    ...phasePrompts.prompts[index],
+    ...prompt,
+  };
+
   await writePhasePrompts(phaseId, phasePrompts);
   return phasePrompts;
 }
