@@ -3,6 +3,7 @@
 ## Comprehensive Blueprint
 
 ### 1. Project Initialization & Environment Setup
+
 - **Goal:** Initialize a Next.js project using TypeScript, configure Tailwind CSS, and integrate shadcn/ui.
 - **Tasks:**
   - Set up a new Next.js project.
@@ -13,6 +14,7 @@
 - **References:** [Next.js Documentation](https://nextjs.org/docs), [Tailwind CSS Docs](https://tailwindcss.com/docs).
 
 ### 2. Data Model & File Storage Design
+
 - **Goal:** Define TypeScript interfaces for prompt fragments and prompt history. Create JSON files (`prompts.json` and `prompt_history.json`) for data persistence.
 - **Tasks:**
   - Create interfaces for prefixes, suffixes, phase prompts, and history log entries.
@@ -21,6 +23,7 @@
 - **References:** [TypeScript Handbook](https://www.typescriptlang.org/docs/), [Node.js File System API](https://nodejs.org/api/fs.html).
 
 ### 3. API Routes for Data Persistence
+
 - **Goal:** Develop Next.js serverless API routes to handle CRUD operations on prompt fragments and history.
 - **Tasks:**
   - Implement API endpoints (e.g., `/api/prompts`, `/api/history`).
@@ -29,6 +32,7 @@
 - **References:** [Next.js API Routes](https://nextjs.org/docs/api-routes/introduction).
 
 ### 4. Prompt Store UI Implementation
+
 - **Goal:** Build the UI for managing prompt fragments.
 - **Tasks:**
   - Create components for listing prefixes, suffixes, and phase prompts.
@@ -38,6 +42,7 @@
 - **References:** [React Testing Library](https://testing-library.com/docs/react-testing-library/intro).
 
 ### 5. Prompt Builder UI Implementation
+
 - **Goal:** Develop the UI for assembling the final prompt.
 - **Tasks:**
   - Build the main text area, action buttons (Generate, Tidy with AI and Generate), and panels for prefix, phase prompt, and suffix.
@@ -46,6 +51,7 @@
 - **References:** [Next.js Components](https://nextjs.org/docs/basic-features/pages), [shadcn/ui Documentation](https://ui.shadcn.com/).
 
 ### 6. AI-Refinement API Endpoint
+
 - **Goal:** Create an API route (`/api/generate`) that interacts with the OpenAI API for prompt refinement.
 - **Tasks:**
   - Build the endpoint with proper request validation, error handling, and environment variable usage for API keys.
@@ -54,6 +60,7 @@
 - **References:** [OpenAI API Documentation](https://platform.openai.com/docs/api-reference/introduction).
 
 ### 7. Prompt Assembly & History Logging
+
 - **Goal:** Implement functions to assemble the final prompt and log generated prompts.
 - **Tasks:**
   - Create a function that concatenates the selected prefix, phase prompt (with placeholders filled), main text, and suffix.
@@ -62,6 +69,7 @@
 - **References:** [Jest Documentation](https://jestjs.io/docs/getting-started).
 
 ### 8. End-to-End Integration & Testing
+
 - **Goal:** Validate the full user workflow from prompt selection to generation and history logging.
 - **Tasks:**
   - Integrate UI components with API endpoints.
@@ -70,6 +78,7 @@
 - **References:** [Cypress Documentation](https://docs.cypress.io/).
 
 ### 9. Deployment & Security
+
 - **Goal:** Prepare the application for deployment on Vercel, ensuring secure management of API keys and rate limiting.
 - **Tasks:**
   - Configure environment variables for secure API key management.
@@ -90,7 +99,7 @@ Below are the iterative prompts for each development phase. Each prompt is self-
 ```text
 Task: Initialize a new Next.js project using TypeScript, configure Tailwind CSS, and integrate shadcn/ui.
 Instructions:
-1. Create a new Next.js project with TypeScript using the command: 
+1. Create a new Next.js project with TypeScript using the command:
    `npx create-next-app@latest --typescript`
 2. Install Tailwind CSS following the official [Tailwind CSS Next.js guide](https://tailwindcss.com/docs/guides/nextjs).
 3. Integrate shadcn/ui components by installing the required packages and setting up the necessary configurations.
@@ -147,7 +156,7 @@ Deliverable: API route implementations and tests for CRUD operations.
 ### Prompt 4: Prompt Store UI Implementation
 
 ```text
-Task: Build the UI for the Prompt Store, including panels for prefixes, suffixes, and phase prompts, and implement inline editing with history.
+Task: Build the UI for the Prompt Store, including panels for prefixes, suffixes, and phase prompts, and implement inline editing with history. Use shadcn prebuilt components where possible.
 Instructions:
 1. Create separate React components for each panel: PrefixPanel, SuffixPanel, and PhasePromptPanel.
 2. Implement filtering functionality by tags for the prefix and suffix panels.
@@ -159,7 +168,7 @@ Instructions:
 5. Write component tests using React Testing Library to verify:
    - Proper rendering of prompt items.
    - Functionality of inline editing and history logging.
-References: [React Testing Library Documentation](https://testing-library.com/docs/react-testing-library/intro).
+References: Refer to [shadcn Documentation](https://ui.shadcn.com/docs) and [React Testing Library Documentation](https://testing-library.com/docs/react-testing-library/intro).
 Deliverable: Functional UI components for the Prompt Store with tests and inline documentation.
 ```
 
