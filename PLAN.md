@@ -233,11 +233,8 @@ Instructions:
 2. Define the function signature:
    - `function assemblePrompt(prefix: string, phase: string, mainText: string, suffix: string): string`
 3. Implement a function `logGeneratedPrompt` that appends the generated prompt along with metadata (e.g., timestamp, user input, AI-refined text, and references to the fragments) to `prompt_history.json`.
-4. Write unit tests to:
-   - Ensure that the assembly function concatenates components in the correct order.
-   - Validate that history entries are logged correctly with all required fields.
-Documentation: Use [Jest Documentation](https://jestjs.io/docs/getting-started) for testing guidance.
-Deliverable: A working prompt assembly function and history logging mechanism with comprehensive unit tests and inline code documentation.
+4. No tests required.
+Deliverable: A working prompt assembly function and history logging mechanism with inline code documentation.
 ```
 
 ---
