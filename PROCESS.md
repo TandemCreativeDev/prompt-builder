@@ -29,7 +29,7 @@ Share your idea with an conversational LLM like 4o or Claude 3.5. Use iterative 
 
 At the end of the conversation, get 4o to write a detailed spec in markdown, feeding in your additional insights you thought about after the interaction as you reviewed it.
 
-File this into your repo as `SPEC.md`
+File this into your repo as [`SPEC.md`](SPEC.md) (this is an example of an output generated for this repo).
 
 ### 2. Design and Architecture
 
@@ -37,7 +37,7 @@ Use a deep thinking model like o3 or Grok3 to design system architecture, explor
 
 Take some time to review your discussion and make a decision, explain your decision back to the model authoritatively (this is no longer a discussion).
 
-Get the model to generate documentation in an ADR (Architecture Decision Record) in mardown, review it and amend if necessary. File it away in your repo as `ADR.md`
+Get the model to generate documentation in an ADR (Architecture Decision Record) in mardown, review it and amend if necessary. File it away in your repo as [`ADR.md`](ADR.md) (this is an example of an output generated for this repo).
 
 Get the AI to update [`SPEC.md`](SPEC.md) with latest architecture decision.
 
@@ -45,9 +45,19 @@ Get the AI to update [`SPEC.md`](SPEC.md) with latest architecture decision.
 
 Use a deep thinking model like o3 or Grok3 to prepare an implementation plan, feed in your spec and ADR, explaining your process. Iterate, review and once happy, generate a prompt plan for the implementation. Make sure to tell the LLM that the build should be incremental and each prompt to build on top of the other. The prompts should be detailed and authoritative in tone, adding details like documentation references and function signatures within the prompts is preferable. These will be fed in to carefully considered output code and are not up for discussion. It is also useful to keep the prompts atomic so after each implementation step you can review and iterate without it being too big a step. Review and if necessary iterate over the list of prompts prepared by the AI.
 
+File this into your repo as [`PLAN.md`](PLAN.md) (this is an example of an output generated for this repo).
+
+Optional: ask the LLM to write a checklist and file as `CHECKLIST.md`.
+
 ### 4. Implementation
 
 Use a reasoning or thinking model like Claude 3.7 or o3 for coding, feed in the prompts from your prompt plan one by one, iterating and reviewing at each step. Use a CLI tool like Aider or Claude Code, but delve into the code at each step as well and combine this with your own solutions. Generate and refine code through iteration. Question each line to avoid "AI spaghetti." Create final code by combining AI suggestions with your expertise, following the architecture principles you set out in your ADR. If you adapt the architecture through this process, don’t forget to update your ADR.
+
+Review your prompt plan as you go and make adjustmentment directly in [`PLAN.md`](PLAN.md).
+
+---
+
+The following steps are optional and will not be covered in this workshop, some guidance if you want to explore this outside of the workshop (and if you do, please follow-up with us on any feedback or tips you may have):
 
 ### 5. Testing
 
