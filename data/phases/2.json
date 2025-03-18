@@ -1,3 +1,69 @@
 {
-  "prompts": []
+  "prompts": [
+    {
+      "id": "MD-P2-001",
+      "text": "I need to design the architecture for this project. Based on the spec, ask me a series of questions that will help you narrow down several high-level architecture options, applying Unix principles to design system architecture, component breakdowns and design patterns. Consider operability and scalability, and iterate over your reasoning.",
+      "tags": ["architecture"],
+      "associated_model_type": "thinking",
+      "rating": 4.8,
+      "uses": 28,
+      "last_used": "2025-03-16",
+      "created_by": "Max",
+      "ai_version_compatibility": ["o3-mini", "Claude 3.7"],
+      "length": 502,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "MD-P2-002",
+      "text": "Based on the high-level architecture decisions described above, can you document this in an Architecture Design Decision? Include all relevant details, highlight key architecture requirements and keep it concise so that anyone picking up the document can quickly understand the structural make-up of the project.",
+      "tags": ["architecture", "adr"],
+      "associated_model_type": "thinking",
+      "rating": 4.8,
+      "uses": 28,
+      "last_used": "2025-03-16",
+      "created_by": "Max",
+      "ai_version_compatibility": ["o3-mini", "Claude 3.7"],
+      "length": 502,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "AD-P2-001",
+      "text": "Let's think step-by-step about the architecture for the spec detailed below. Please consider:\n1. The main functionalities this component needs to support\n2. Potential data structures or models\n3. Key classes or modules and their responsibilities\n4. How this component will interact with other parts of the system\n5. Potential design patterns that could be applicable\n6. Considerations for scalability and maintainability. For each step, provide a brief explanation of your reasoning. \nThis is the spec:",
+      "tags": ["design", "architecture", "scalability"],
+      "associated_model_type": "thinking",
+      "rating": 4.8,
+      "uses": 28,
+      "last_used": "2025-03-16",
+      "created_by": "AalapDavjekar",
+      "ai_version_compatibility": ["o3-mini", "Claude 3.7"],
+      "length": 502,
+      "deprecated": false,
+      "history_log": [
+        {
+          "timestamp": "2025-03-18T19:53:41.726Z",
+          "text": "Let's think step-by-step about the architecture for [specific component or system]. Please consider: 1. The main functionalities this component needs to support, 2. Potential data structures or models, 3. Key classes or modules and their responsibilities, 4. How this component will interact with other parts of the system, 5. Potential design patterns that could be applicable, 6. Considerations for scalability and maintainability. For each step, provide a brief explanation of your reasoning."
+        },
+        {
+          "timestamp": "2025-03-18T19:54:37.328Z",
+          "text": "Let's think step-by-step about the architecture for the spec detailed below. Please consider: 1. The main functionalities this component needs to support, 2. Potential data structures or models, 3. Key classes or modules and their responsibilities, 4. How this component will interact with other parts of the system, 5. Potential design patterns that could be applicable, 6. Considerations for scalability and maintainability. For each step, provide a brief explanation of your reasoning. \nThis is the spec:"
+        }
+      ]
+    },
+    {
+      "id": "AD-P2-002",
+      "text": "Detail the software design by breaking down components, illustrating data flows, and justifying the chosen design patterns.",
+      "tags": ["design", "architecture", "diagrams"],
+      "associated_model_type": "thinking",
+      "rating": 4.8,
+      "uses": 18,
+      "last_used": "2025-03-18",
+      "created_by": "AalapDavjekar",
+      "ai_version_compatibility": ["o3-mini", "Claude 3.7"],
+      "length": 142,
+      "deprecated": false,
+      "history_log": []
+    }
+  ]
 }

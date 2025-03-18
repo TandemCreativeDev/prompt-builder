@@ -1,3 +1,46 @@
 {
-  "prompts": []
+  "prompts": [
+    {
+      "id": "AD-P3-002",
+      "text": "Develop a comprehensive test suite covering unit, integration, and end-to-end tests. Include edge cases and error handling scenarios.",
+      "tags": ["testing", "test suite", "quality assurance"],
+      "associated_model_type": "reasoning",
+      "rating": 4.7,
+      "uses": 24,
+      "last_used": "2025-03-16",
+      "created_by": "AalapDavjekar",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 155,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "GEN-P5-002",
+      "text": "Iterate on the test cases by simulating various failure scenarios and ensuring that each component handles errors gracefully.",
+      "tags": ["testing", "iteration", "error handling"],
+      "associated_model_type": "reasoning",
+      "rating": 4.3,
+      "uses": 10,
+      "last_used": "2025-03-18",
+      "created_by": "system",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 148,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "SW-P5-003",
+      "text": "Run through example scenarios and provide detailed explanations for each test case, identifying any potential edge cases.",
+      "tags": ["testing", "edge cases", "scenario"],
+      "associated_model_type": "reasoning",
+      "rating": 4.6,
+      "uses": 10,
+      "last_used": "2025-03-18",
+      "created_by": "SimonWillison",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 147,
+      "deprecated": false,
+      "history_log": []
+    }
+  ]
 }

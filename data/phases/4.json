@@ -1,3 +1,88 @@
 {
-  "prompts": []
+  "prompts": [
+    {
+      "id": "MD-P4-001",
+      "text": "For project details, see SPEC.md. I will send through a series of prompts that build on top of one another now to build this project out. Consider we already have an initial build of nextjs with typescript so you may disregard the instructions to set this up in the following prompts. You do not need to write any code as a response right now, just acknowledge this message and indicate that you are ready to receive the first prompt in the prompt plan.",
+      "tags": ["implementation", "context", "specification"],
+      "associated_model_type": "reasoning",
+      "rating": 4.7,
+      "uses": 30,
+      "last_used": "2025-03-11",
+      "created_by": "Max",
+      "ai_version_compatibility": ["o3-mini", "Claude 3.7"],
+      "length": 144,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "MD-P4-002",
+      "text": "That all works. Lets commit all these changes atomically, each file should be one commit, the commit should follow conventional commits and best practice, expressing exactly what has been changed or added. Run each commit by me before sending it for confirmation.",
+      "tags": ["implementation", "commit", "git"],
+      "associated_model_type": "reasoning",
+      "rating": 4.7,
+      "uses": 30,
+      "last_used": "2025-03-11",
+      "created_by": "Max",
+      "ai_version_compatibility": ["o3-mini", "Claude 3.7"],
+      "length": 144,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "SW-P4-001",
+      "text": "Write a code snippet in Python that implements the algorithm described above, ensuring proper error handling and modular design.",
+      "tags": ["implementation", "code snippet", "Python"],
+      "associated_model_type": "reasoning",
+      "rating": 4.7,
+      "uses": 30,
+      "last_used": "2025-03-11",
+      "created_by": "SimonWillison",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 144,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "AD-P3-001",
+      "text": "Generate code incrementally, ensuring each function is self-contained, well-documented, and accompanied by inline comments explaining the rationale.",
+      "tags": ["implementation", "incremental code", "documentation"],
+      "associated_model_type": "reasoning",
+      "rating": 4.8,
+      "uses": 26,
+      "last_used": "2025-03-16",
+      "created_by": "AalapDavjekar",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 157,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "GEN-P4-002",
+      "text": "Before generating code, review the latest ADR and update it if architectural changes have been made.",
+      "tags": ["implementation", "ADR review"],
+      "associated_model_type": "reasoning",
+      "rating": 4.2,
+      "uses": 8,
+      "last_used": "2025-03-18",
+      "created_by": "system",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 116,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "HAR-P4-002",
+      "text": "Implement each feature in isolation with unit tests to verify functionality as you progress.",
+      "tags": ["implementation", "unit testing", "isolation"],
+      "associated_model_type": "reasoning",
+      "rating": 4.5,
+      "uses": 12,
+      "last_used": "2025-03-16",
+      "created_by": "Harper",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 129,
+      "deprecated": false,
+      "history_log": []
+    }
+  ]
 }

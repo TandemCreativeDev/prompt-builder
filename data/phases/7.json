@@ -1,3 +1,61 @@
 {
-  "prompts": []
+  "prompts": [
+    {
+      "id": "AD-P3-004",
+      "text": "Develop a maintenance plan that includes regular code reviews, bug fixes, and updates based on user feedback. Ensure adherence to Unix principles in updates.",
+      "tags": ["maintenance", "code reviews", "bug fixes"],
+      "associated_model_type": "reasoning",
+      "rating": 4.7,
+      "uses": 20,
+      "last_used": "2025-03-16",
+      "created_by": "AalapDavjekar",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 161,
+      "deprecated": false,
+      "history_log": [
+        {
+          "timestamp": "2025-03-16T16:00:00Z",
+          "text": "Extracted from Medium guide part 3."
+        }
+      ]
+    },
+    {
+      "id": "GEN-P7-002",
+      "text": "Iterate on maintenance strategies by continuously integrating user feedback and monitoring system performance to preemptively address issues.",
+      "tags": ["maintenance", "iteration", "performance monitoring"],
+      "associated_model_type": "reasoning",
+      "rating": 4.3,
+      "uses": 8,
+      "last_used": "2025-03-18",
+      "created_by": "system",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 158,
+      "deprecated": false,
+      "history_log": [
+        {
+          "timestamp": "2025-03-18T13:00:00Z",
+          "text": "System-generated maintenance prompt."
+        }
+      ]
+    },
+    {
+      "id": "AD-P7-003",
+      "text": "Set up a monitoring dashboard and alerting system to track performance and detect bugs in real-time, with periodic reviews for continuous improvement.",
+      "tags": ["maintenance", "monitoring", "feedback"],
+      "associated_model_type": "reasoning",
+      "rating": 4.7,
+      "uses": 11,
+      "last_used": "2025-03-18",
+      "created_by": "system",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 164,
+      "deprecated": false,
+      "history_log": [
+        {
+          "timestamp": "2025-03-18T14:00:00Z",
+          "text": "System-generated to complement maintenance phase requirements."
+        }
+      ]
+    }
+  ]
 }

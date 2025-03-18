@@ -1,3 +1,60 @@
 {
-  "prompts": []
+  "prompts": [
+    {
+      "id": "AD-P1-001",
+      "text": "Brainstorm project ideas and gather detailed requirements through iterative conversation. Ask follow-up questions to refine the project scope.",
+      "tags": ["conception", "brainstorm", "requirements"],
+      "associated_model_type": "conversational",
+      "rating": 4.7,
+      "uses": 35,
+      "last_used": "2025-03-16",
+      "created_by": "AalapDavjekar",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 142,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "GEN-P1-002",
+      "text": "Ask me one question at a time so we can develop a thorough, step-by-step spec for this idea. Each question should build on my previous answers, and our end goal is to have a detailed specification I can hand off to a developer. Let’s do this iteratively and dig into every relevant detail. Remember, only one question at a time. Here’s the idea:",
+      "tags": ["conception", "iteration", "brainstorm"],
+      "associated_model_type": "conversational",
+      "rating": 4.3,
+      "uses": 10,
+      "last_used": "2025-03-18",
+      "created_by": "HarperLee",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 146,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "AD-P1-003",
+      "text": "Describe the project idea in full detail and list key features and goals, considering potential challenges and market needs.",
+      "tags": ["conception", "requirements"],
+      "associated_model_type": "conversational",
+      "rating": 4.7,
+      "uses": 20,
+      "last_used": "2025-03-18",
+      "created_by": "AalapDavjekar",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 138,
+      "deprecated": false,
+      "history_log": []
+    },
+    {
+      "id": "GEN-P1-004",
+      "text": "Now that we’ve wrapped up the brainstorming process, can you compile our findings into a comprehensive, developer-ready specification? Include all relevant requirements, architecture suggestions, data handling details, error handling strategies, and a testing plan so a software architect and eventually a developer for implementation.",
+      "tags": ["conception", "iteration", "brainstorm"],
+      "associated_model_type": "conversational",
+      "rating": 4.3,
+      "uses": 10,
+      "last_used": "2025-03-18",
+      "created_by": "HarperLee",
+      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+      "length": 146,
+      "deprecated": false,
+      "history_log": []
+    }
+  ]
 }
