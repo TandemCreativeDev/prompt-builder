@@ -35,6 +35,12 @@ export default function Home() {
           >
             Prompt Store
           </Link>
+          <Link
+            href="/api-docs"
+            className="px-6 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-700 font-medium"
+          >
+            API Docs
+          </Link>
         </div>
       </main>
     </div>
