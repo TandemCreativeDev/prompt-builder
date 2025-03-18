@@ -18,7 +18,7 @@ Within each step, you can go through the same process of 4 actions:
 
 1. **Iterate:** Share your project idea, requirements or output with AI and build a specification through iterative questioning. You can prompt AI to ask targeted questions to help develop detailed requirements.
 2. **Question:** Review AI's requirements summary, identify gaps, and refine the specification through follow-up questions.
-3. **Create:** Combine AI insights with your ideas to create a final spec in plain text format. If AI has presented 10 solutions, you come up with the 11th.
+3. **Review/Create:** Review the generated code, understand it. When necessary, combine AI insights with your ideas to create a final spec in plain text format. If AI has presented 10 solutions, you come up with the 11th.
 4. **Explain:** Present the specification to stakeholders/team members, emphasising its clear foundation and alignment with Unix principles (if applicable).
 
 The phases are:
@@ -43,7 +43,7 @@ Get the AI to update [`SPEC.md`](SPEC.md) with latest architecture decision.
 
 ### 3. Planning
 
-Use a deep thinking model like o3 or Grok3 to prepare an implementation plan, feed in your spec and ADR, explaining your process. Iterate, review and once happy, generate a prompt plan for the implementation. Make sure to tell the LLM that the build should be incremental and each prompt to build on top of the other. The prompts should be detailed and authoritative in tone, adding details like documentation references ╰───────────────────────────────────────────────────────────────────────────────────────────────╯and function signatures within the prompts is preferable. These will be fed in to carefully considered output code and are not up for discussion. It is also useful to keep the prompts atomic so after each implementation step you can review and iterate without it being too big a step. Review and if necessary iterate over the list of prompts prepared by the AI.
+Use a deep thinking model like o3 or Grok3 to prepare an implementation plan, feed in your spec and ADR, explaining your process. Iterate, review and once happy, generate a prompt plan for the implementation. Make sure to tell the LLM that the build should be incremental and each prompt to build on top of the other. The prompts should be detailed and authoritative in tone, adding details like documentation references and function signatures within the prompts is preferable. These will be fed in to carefully considered output code and are not up for discussion. It is also useful to keep the prompts atomic so after each implementation step you can review and iterate without it being too big a step. Review and if necessary iterate over the list of prompts prepared by the AI.
 
 ### 4. Implementation
 
@@ -59,4 +59,4 @@ Plan deployment with o3 and generate scripts with o1. Question security aspects 
 
 ### 7. Maintenance
 
-Address bugs using o1 for reasoning and o3 for code. Question fixes to ensure integrity. Explain updates to stakeholders, highlighting how the workflow maintains control and follows Unix principles.
+Address bugs using o1 for reasoning and o3 for code. Question fixes to ensure integrity. Explain updates to stakeholders, highlighting how the workflow maintains control and follows principles set out in your ADR.
