@@ -332,3 +332,39 @@ export async function updatePhasePrompt(
   await writePhasePrompts(phaseId, phasePrompts);
   return phasePrompts;
 }
+
+/**
+ * Marks a prompt as deprecated (soft delete)
+ * Works with prefixes, suffixes, and phase prompts
+ *
+ * @param promptId The ID of the prompt to deprecate
+ * @param promptType The type of prompt ('prefix', 'suffix', or 'phase')
+ * @param phaseId Optional phase ID, required when promptType is 'phase'
+ * @returns Promise resolving to true if successful
+ */
+export async function deprecatePrompt(
+  promptId: string,
+  promptType: "prefix" | "suffix" | "phase",
+  phaseId?: string
+): Promise<boolean> {
+  try {
+    switch (promptType) {
+      case "prefix":
+        await updatePrefix({ id: promptId, deprecated: true });
+        break;
+      case "suffix":
+        await updateSuffix({ id: promptId, deprecated: true });
+        break;
+      case "phase":
+        if (!phaseId) throw new Error("Phase ID is required for phase prompts");
+        await updatePhasePrompt(phaseId, { id: promptId, deprecated: true });
+        break;
+      default:
+        throw new Error(`Invalid prompt type: ${promptType}`);
+    }
+    return true;
+  } catch (error) {
+    console.error(`Error deprecating ${promptType} prompt:`, error);
+    throw error;
+  }
+}
