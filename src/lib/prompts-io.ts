@@ -6,6 +6,7 @@ import {
   SuffixesData,
   PhasePromptsData,
   PhasesConfig,
+  HistoryLogEntry,
 } from "../types/prompts";
 
 /**
@@ -37,18 +38,110 @@ export const DEFAULT_PHASE_PROMPTS_DATA: PhasePromptsData = {
 };
 
 /**
+ * Generic function to read JSON data from a file
+ * Creates default data if the file doesn't exist
+ *
+ * @param filePath The path to the JSON file
+ * @param defaultData The default data to use if the file doesn't exist
+ * @returns Promise resolving to the JSON data
+ */
+async function readJsonFile<T>(filePath: string, defaultData: T): Promise<T> {
+  try {
+    const data = await fs.readFile(filePath, "utf-8");
+    return JSON.parse(data) as T;
+  } catch (error) {
+    // If file doesn't exist, create default structure
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      await writeJsonFile(filePath, defaultData);
+      return defaultData;
+    }
+
+    // Re-throw other errors
+    throw error;
+  }
+}
+
+/**
+ * Generic function to write JSON data to a file
+ *
+ * @param filePath The path to the JSON file
+ * @param data The data to write
+ * @returns Promise that resolves when the write operation is complete
+ */
+async function writeJsonFile<T>(filePath: string, data: T): Promise<void> {
+  try {
+    // Ensure the directory exists
+    const dir = path.dirname(filePath);
+    await fs.mkdir(dir, { recursive: true });
+
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
+  } catch (error) {
+    console.error(`Error writing file ${filePath}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Creates a history log entry for a prompt update
+ *
+ * @param text The updated text of the prompt
+ * @returns A history log entry with the current timestamp
+ */
+function createHistoryLogEntry(text: string): HistoryLogEntry {
+  return {
+    timestamp: new Date().toISOString(),
+    text: text,
+  };
+}
+
+/**
+ * Generic function to update a prompt fragment
+ * Updates the prompt's properties and adds a history log entry
+ *
+ * @param original The original prompt fragment
+ * @param updates The updates to apply to the prompt
+ * @returns The updated prompt fragment
+ */
+function updatePromptFragment(
+  original: PromptFragment,
+  updates: Partial<PromptFragment>
+): PromptFragment {
+  const updated = {
+    ...original,
+    ...updates,
+  };
+
+  // Add to history_log if text was changed
+  if (updates.text && updates.text !== original.text) {
+    if (!updated.history_log) {
+      updated.history_log = [];
+    }
+    updated.history_log.push(createHistoryLogEntry(original.text));
+
+    // Update length if text changed
+    updated.length = updates.text.length;
+  }
+
+  return updated;
+}
+
+/**
  * Reads the phases configuration
  *
  * @returns Promise resolving to the phases configuration
  */
 export async function readPhasesConfig(): Promise<PhasesConfig> {
-  try {
-    const data = await fs.readFile(PHASES_FILE_PATH, "utf-8");
-    return JSON.parse(data) as PhasesConfig;
-  } catch (error) {
-    console.error("Error reading phases config:", error);
-    throw error;
-  }
+  return readJsonFile<PhasesConfig>(PHASES_FILE_PATH, { phases: [] });
+}
+
+/**
+ * Writes phases configuration
+ *
+ * @param data The phases configuration to write
+ * @returns Promise that resolves when the write operation is complete
+ */
+export async function writePhasesConfig(data: PhasesConfig): Promise<void> {
+  return writeJsonFile<PhasesConfig>(PHASES_FILE_PATH, data);
 }
 
 /**
@@ -58,19 +151,7 @@ export async function readPhasesConfig(): Promise<PhasesConfig> {
  * @returns Promise resolving to the prefixes data
  */
 export async function readPrefixes(): Promise<PrefixesData> {
-  try {
-    const data = await fs.readFile(PREFIXES_FILE_PATH, "utf-8");
-    return JSON.parse(data) as PrefixesData;
-  } catch (error) {
-    // If file doesn't exist, create default structure
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      await writePrefixes(DEFAULT_PREFIXES_DATA);
-      return DEFAULT_PREFIXES_DATA;
-    }
-
-    // Re-throw other errors
-    throw error;
-  }
+  return readJsonFile<PrefixesData>(PREFIXES_FILE_PATH, DEFAULT_PREFIXES_DATA);
 }
 
 /**
@@ -80,16 +161,7 @@ export async function readPrefixes(): Promise<PrefixesData> {
  * @returns Promise that resolves when the write operation is complete
  */
 export async function writePrefixes(data: PrefixesData): Promise<void> {
-  try {
-    await fs.writeFile(
-      PREFIXES_FILE_PATH,
-      JSON.stringify(data, null, 2),
-      "utf-8"
-    );
-  } catch (error) {
-    console.error("Error writing prefixes file:", error);
-    throw error;
-  }
+  return writeJsonFile<PrefixesData>(PREFIXES_FILE_PATH, data);
 }
 
 /**
@@ -112,7 +184,7 @@ export async function addPrefix(prefix: PromptFragment): Promise<PrefixesData> {
  * @returns Promise resolving to the updated prefixes data
  */
 export async function updatePrefix(
-  prefix: PromptFragment
+  prefix: Partial<PromptFragment>
 ): Promise<PrefixesData> {
   const prefixes = await readPrefixes();
   const index = prefixes.prefixes.findIndex((p) => p.id === prefix.id);
@@ -121,10 +193,11 @@ export async function updatePrefix(
     throw new Error(`Prefix with id ${prefix.id} not found`);
   }
 
-  prefixes.prefixes[index] = {
-    ...prefixes.prefixes[index],
-    ...prefix,
-  };
+  prefixes.prefixes[index] = updatePromptFragment(
+    prefixes.prefixes[index],
+    prefix
+  );
+
   await writePrefixes(prefixes);
   return prefixes;
 }
@@ -136,19 +209,7 @@ export async function updatePrefix(
  * @returns Promise resolving to the suffixes data
  */
 export async function readSuffixes(): Promise<SuffixesData> {
-  try {
-    const data = await fs.readFile(SUFFIXES_FILE_PATH, "utf-8");
-    return JSON.parse(data) as SuffixesData;
-  } catch (error) {
-    // If file doesn't exist, create default structure
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      await writeSuffixes(DEFAULT_SUFFIXES_DATA);
-      return DEFAULT_SUFFIXES_DATA;
-    }
-
-    // Re-throw other errors
-    throw error;
-  }
+  return readJsonFile<SuffixesData>(SUFFIXES_FILE_PATH, DEFAULT_SUFFIXES_DATA);
 }
 
 /**
@@ -158,16 +219,7 @@ export async function readSuffixes(): Promise<SuffixesData> {
  * @returns Promise that resolves when the write operation is complete
  */
 export async function writeSuffixes(data: SuffixesData): Promise<void> {
-  try {
-    await fs.writeFile(
-      SUFFIXES_FILE_PATH,
-      JSON.stringify(data, null, 2),
-      "utf-8"
-    );
-  } catch (error) {
-    console.error("Error writing suffixes file:", error);
-    throw error;
-  }
+  return writeJsonFile<SuffixesData>(SUFFIXES_FILE_PATH, data);
 }
 
 /**
@@ -197,10 +249,10 @@ export async function updateSuffix(
 
   if (index === -1) throw new Error(`Suffix with id ${suffix.id} not found`);
 
-  suffixes.suffixes[index] = {
-    ...suffixes.suffixes[index],
-    ...suffix,
-  };
+  suffixes.suffixes[index] = updatePromptFragment(
+    suffixes.suffixes[index],
+    suffix
+  );
 
   await writeSuffixes(suffixes);
   return suffixes;
@@ -217,20 +269,7 @@ export async function readPhasePrompts(
   phaseId: string
 ): Promise<PhasePromptsData> {
   const filePath = path.join(PHASES_DIR, `${phaseId}.json`);
-
-  try {
-    const data = await fs.readFile(filePath, "utf-8");
-    return JSON.parse(data) as PhasePromptsData;
-  } catch (error) {
-    // If file doesn't exist, create default structure
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      await writePhasePrompts(phaseId, DEFAULT_PHASE_PROMPTS_DATA);
-      return DEFAULT_PHASE_PROMPTS_DATA;
-    }
-
-    // Re-throw other errors
-    throw error;
-  }
+  return readJsonFile<PhasePromptsData>(filePath, DEFAULT_PHASE_PROMPTS_DATA);
 }
 
 /**
@@ -245,16 +284,7 @@ export async function writePhasePrompts(
   data: PhasePromptsData
 ): Promise<void> {
   const filePath = path.join(PHASES_DIR, `${phaseId}.json`);
-
-  try {
-    // Ensure the phases directory exists
-    await fs.mkdir(PHASES_DIR, { recursive: true });
-
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
-  } catch (error) {
-    console.error(`Error writing phase ${phaseId} prompts file:`, error);
-    throw error;
-  }
+  return writeJsonFile<PhasePromptsData>(filePath, data);
 }
 
 /**
@@ -283,7 +313,7 @@ export async function addPhasePrompt(
  */
 export async function updatePhasePrompt(
   phaseId: string,
-  prompt: PromptFragment
+  prompt: Partial<PromptFragment>
 ): Promise<PhasePromptsData> {
   const phasePrompts = await readPhasePrompts(phaseId);
   const index = phasePrompts.prompts.findIndex((p) => p.id === prompt.id);
@@ -294,10 +324,10 @@ export async function updatePhasePrompt(
     );
   }
 
-  phasePrompts.prompts[index] = {
-    ...phasePrompts.prompts[index],
-    ...prompt,
-  };
+  phasePrompts.prompts[index] = updatePromptFragment(
+    phasePrompts.prompts[index],
+    prompt
+  );
 
   await writePhasePrompts(phaseId, phasePrompts);
   return phasePrompts;
