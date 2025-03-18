@@ -122,18 +122,47 @@ export default function PromptBuilderPage() {
     setMainText(text);
   };
 
-  const handleGeneratePrompt = () => {
-    // Very basic prompt assembly - will be expanded later
+  const handleGeneratePrompt = async () => {
+    // Get text values from selected components
     const prefixText = selectedPrefix ? selectedPrefix.text : "";
     const phaseText = selectedPhasePrompt ? selectedPhasePrompt.text : "";
     const suffixText = selectedSuffix ? selectedSuffix.text : "";
 
-    const assembled = [prefixText, phaseText, mainText, suffixText]
-      .filter(Boolean)
-      .join("\n\n");
+    try {
+      // Make API call to generate prompt and log to history
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mainText: mainText,
+          prefixText: prefixText,
+          phaseText: phaseText,
+          suffixText: suffixText,
+          prefixId: selectedPrefix?.id,
+          suffixId: selectedSuffix?.id,
+          phasePromptId: selectedPhasePrompt?.id,
+          phaseNumber: selectedPhasePrompt?.phase_id,
+        }),
+      });
 
-    setGeneratedPrompt(assembled);
-    toast.success("Prompt generated!");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate prompt");
+      }
+
+      const data = await response.json();
+
+      // Use the assembled prompt from the API response
+      setGeneratedPrompt(data.assembledPrompt);
+      toast.success("Prompt generated and logged to history!");
+    } catch (error) {
+      console.error("Error generating prompt:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to generate prompt"
+      );
+    }
   };
 
   const handleTidyAndGenerate = async () => {
@@ -146,7 +175,12 @@ export default function PromptBuilderPage() {
       // Show loading toast
       toast.loading("Tidying text with AI...");
 
-      // Call the OpenAI API via our backend
+      // Get text values from selected components
+      const prefixText = selectedPrefix ? selectedPrefix.text : "";
+      const phaseText = selectedPhasePrompt ? selectedPhasePrompt.text : "";
+      const suffixText = selectedSuffix ? selectedSuffix.text : "";
+
+      // Call the OpenAI API via our backend with all prompt components
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: {
@@ -154,6 +188,13 @@ export default function PromptBuilderPage() {
         },
         body: JSON.stringify({
           mainText: mainText,
+          prefixText: prefixText,
+          phaseText: phaseText,
+          suffixText: suffixText,
+          prefixId: selectedPrefix?.id,
+          suffixId: selectedSuffix?.id,
+          phasePromptId: selectedPhasePrompt?.id,
+          phaseNumber: selectedPhasePrompt?.phase_id,
         }),
       });
 
@@ -166,18 +207,11 @@ export default function PromptBuilderPage() {
 
       // Update the main text with the refined version
       setMainText(data.refinedText);
-      toast.success("Text tidied successfully!");
 
-      // Generate the prompt with the refined text
-      const prefixText = selectedPrefix ? selectedPrefix.text : "";
-      const phaseText = selectedPhasePrompt ? selectedPhasePrompt.text : "";
-      const suffixText = selectedSuffix ? selectedSuffix.text : "";
+      // Set the generated prompt from the assembled prompt in the response
+      setGeneratedPrompt(data.assembledPrompt);
 
-      const assembled = [prefixText, phaseText, data.refinedText, suffixText]
-        .filter(Boolean)
-        .join("\n\n");
-
-      setGeneratedPrompt(assembled);
+      toast.success("Text tidied and prompt generated successfully!");
     } catch (error) {
       console.error("Error tidying text:", error);
       toast.error(
