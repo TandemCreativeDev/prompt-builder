@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { assemblePrompt, logGeneratedPrompt } from "@/lib/prompt-assembly";
 
 /**
  * Interface for the request body sent to the generate API
@@ -20,6 +21,34 @@ export interface GenerateRequest {
    * Optional max tokens setting (defaults to 1000)
    */
   maxTokens?: number;
+  /**
+   * Optional prefix text to include in the prompt
+   */
+  prefixText?: string;
+  /**
+   * Optional suffix text to include in the prompt
+   */
+  suffixText?: string;
+  /**
+   * Optional phase prompt text to include in the prompt
+   */
+  phaseText?: string;
+  /**
+   * Optional ID of the selected prefix for history logging
+   */
+  prefixId?: string;
+  /**
+   * Optional ID of the selected suffix for history logging
+   */
+  suffixId?: string;
+  /**
+   * Optional ID of the selected phase prompt for history logging
+   */
+  phasePromptId?: string;
+  /**
+   * Optional phase number for history logging
+   */
+  phaseNumber?: string;
 }
 
 /**
@@ -30,6 +59,14 @@ export interface GenerateResponse {
    * The refined/tidied text from the OpenAI API
    */
   refinedText: string;
+  /**
+   * The fully assembled prompt with all components
+   */
+  assembledPrompt?: string;
+  /**
+   * The ID of the history entry created
+   */
+  historyId?: string;
   /**
    * The model used for generation
    */
@@ -105,11 +142,54 @@ function validateInput(data: unknown): GenerateRequest {
     }
   }
 
+  // Validate optional text components
+  if (input.prefixText !== undefined && typeof input.prefixText !== "string") {
+    throw new Error("prefixText must be a string");
+  }
+
+  if (input.suffixText !== undefined && typeof input.suffixText !== "string") {
+    throw new Error("suffixText must be a string");
+  }
+
+  if (input.phaseText !== undefined && typeof input.phaseText !== "string") {
+    throw new Error("phaseText must be a string");
+  }
+
+  // Validate optional ID fields for history
+  if (input.prefixId !== undefined && typeof input.prefixId !== "string") {
+    throw new Error("prefixId must be a string");
+  }
+
+  if (input.suffixId !== undefined && typeof input.suffixId !== "string") {
+    throw new Error("suffixId must be a string");
+  }
+
+  if (
+    input.phasePromptId !== undefined &&
+    typeof input.phasePromptId !== "string"
+  ) {
+    throw new Error("phasePromptId must be a string");
+  }
+
+  if (
+    input.phaseNumber !== undefined &&
+    typeof input.phaseNumber !== "string"
+  ) {
+    throw new Error("phaseNumber must be a string");
+  }
+
   return {
     mainText: input.mainText,
     model: input.model,
     temperature: input.temperature,
     maxTokens: input.maxTokens,
+    prefixText: input.prefixText,
+    suffixText: input.suffixText,
+    phaseText: input.phaseText,
+    prefixId: input.prefixId,
+    suffixId: input.suffixId,
+    phasePromptId: input.phasePromptId,
+    phaseNumber: input.phaseNumber,
   };
 }
 
@@ -141,6 +221,9 @@ async function callOpenAI(request: GenerateRequest): Promise<GenerateResponse> {
     const temperature = request.temperature || 0.7;
     const maxTokens = request.maxTokens || 1000;
 
+    // Use proper prompt text for the API call
+    const textToRefine = request.mainText;
+
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -157,7 +240,7 @@ async function callOpenAI(request: GenerateRequest): Promise<GenerateResponse> {
           },
           {
             role: "user",
-            content: `Please refine and tidy the following text:\n\n${request.mainText}`,
+            content: `Please refine and tidy the following text:\n\n${textToRefine}`,
           },
         ],
         temperature: temperature,
@@ -174,9 +257,19 @@ async function callOpenAI(request: GenerateRequest): Promise<GenerateResponse> {
     }
 
     const data = await response.json();
+    const refinedText = data.choices[0].message.content;
+
+    // Assemble the full prompt
+    const assembledPrompt = assemblePrompt(
+      request.prefixText || "",
+      request.phaseText || "",
+      refinedText,
+      request.suffixText || ""
+    );
 
     return {
-      refinedText: data.choices[0].message.content,
+      refinedText: refinedText,
+      assembledPrompt: assembledPrompt,
       model: data.model,
       metadata: {
         completionTokens: data.usage?.completion_tokens,
@@ -214,6 +307,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Call OpenAI API
     const result = await callOpenAI(validatedData);
+
+    // Log the generated prompt to history
+    try {
+      const historyEntry = await logGeneratedPrompt(
+        validatedData.mainText,
+        result.refinedText,
+        validatedData.prefixId,
+        validatedData.suffixId,
+        validatedData.phasePromptId,
+        validatedData.phaseNumber
+      );
+
+      // Add history ID to the result
+      result.historyId = historyEntry.id;
+    } catch (historyError) {
+      console.error("Error logging prompt to history:", historyError);
+      // We don't want to fail the whole request if history logging fails
+    }
 
     // Return successful response
     return NextResponse.json(result, { status: 200 });
