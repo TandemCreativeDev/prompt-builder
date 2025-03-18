@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8">
@@ -5,40 +7,34 @@ export default function Home() {
         <h1 className="text-4xl font-bold text-center mb-6">
           AI-Assisted Prompt Repository & Generator
         </h1>
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-full mb-6">
-          <h2 className="text-2xl font-semibold mb-4">Hello World!</h2>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-full mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Welcome to Prompt Builder</h2>
           <p className="text-gray-700 dark:text-gray-300 mb-4">
-            This is a Next.js project with TypeScript, Tailwind CSS, and shadcn/ui components.
+            A tool for creating, managing, and tracking AI prompts.
           </p>
-          <p className="text-gray-700 dark:text-gray-300">
-            Check out the API route at <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">/api/hello</code>
+          <p className="text-gray-700 dark:text-gray-300 mb-4">
+            This application allows you to:
           </p>
+          <ul className="list-disc pl-5 mb-4 text-gray-700 dark:text-gray-300">
+            <li>Manage prompt fragments (prefixes, suffixes, phase prompts)</li>
+            <li>Assemble complete prompts from these fragments</li>
+            <li>Track prompt history and usage</li>
+            <li>Refine prompts with AI assistance</li>
+          </ul>
         </div>
-        <div className="flex gap-4">
-          <a 
-            href="https://nextjs.org/docs" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        <div className="flex gap-6">
+          <Link 
+            href="/builder"
+            className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 font-medium"
           >
-            Next.js Docs
-          </a>
-          <a 
-            href="https://tailwindcss.com/docs" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
+            Prompt Builder
+          </Link>
+          <Link
+            href="/store"
+            className="px-6 py-3 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 font-medium"
           >
-            Tailwind Docs
-          </a>
-          <a 
-            href="https://ui.shadcn.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-          >
-            shadcn/ui Docs
-          </a>
+            Prompt Store
+          </Link>
         </div>
       </main>
     </div>

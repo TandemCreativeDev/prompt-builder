@@ -339,6 +339,15 @@ export default function PromptStorePage() {
   return (
     <div className="container mx-auto p-4 min-h-screen">
       <Toaster />
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">Prompt Store</h1>
+        <a 
+          href="/builder" 
+          className="px-3 py-1 bg-primary text-primary-foreground rounded hover:bg-primary/90 text-sm"
+        >
+          Go to Prompt Builder
+        </a>
+      </div>
       <PromptStore
         prefixesData={prefixesData}
         suffixesData={suffixesData}

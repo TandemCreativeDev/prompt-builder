@@ -276,8 +276,6 @@ export function PromptStore({
 
   return (
     <div className="flex flex-col w-full h-full">
-      <h1 className="text-2xl font-bold mb-4">Prompt Store</h1>
-
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
