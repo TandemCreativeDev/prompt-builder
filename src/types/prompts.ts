@@ -22,6 +22,7 @@ export interface PromptFragment {
   length: number;
   deprecated: boolean;
   history_log: HistoryLogEntry[];
+  phase_id?: string;
 }
 
 /**
