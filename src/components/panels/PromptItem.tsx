@@ -1,11 +1,29 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { JSX } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { PromptFragment, HistoryLogEntry } from "@/types/prompts";
 
 /**
@@ -23,11 +41,19 @@ export interface PromptItemProps {
   /**
    * Event handler for when the prompt is updated
    */
-  onUpdate?: (promptId: string, newText: string, persistChange: boolean) => void;
+  onUpdate?: (
+    promptId: string,
+    newText: string,
+    persistChange: boolean
+  ) => void;
   /**
    * Event handler for when a historical version is restored
    */
   onRestoreVersion?: (promptId: string, historyEntry: HistoryLogEntry) => void;
+  /**
+   * Event handler for when the prompt is deprecated (soft delete)
+   */
+  onDeprecate?: (promptId: string) => Promise<boolean> | void;
 }
 
 /**
@@ -35,14 +61,21 @@ export interface PromptItemProps {
  * @param props - Component props
  * @returns JSX.Element
  */
-export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: PromptItemProps): JSX.Element {
+export function PromptItem({
+  prompt,
+  onSelect,
+  onUpdate,
+  onRestoreVersion,
+  onDeprecate,
+}: PromptItemProps): JSX.Element {
   const [isEditing, setIsEditing] = React.useState(false);
   const [editText, setEditText] = React.useState(prompt.text);
   const [showHistory, setShowHistory] = React.useState(false);
-  
+  const [confirmingDelete, setConfirmingDelete] = React.useState(false);
+
   // Sort history entries by timestamp in descending order (newest first)
-  const sortedHistory = [...prompt.history_log].sort((a, b) => 
-    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  const sortedHistory = [...prompt.history_log].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
   const handleEdit = () => {
@@ -70,14 +103,23 @@ export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: Pro
     setShowHistory(false);
   };
 
+  const handleDeprecate = async () => {
+    if (onDeprecate) {
+      const success = await onDeprecate(prompt.id);
+      if (success) {
+        setConfirmingDelete(false);
+      }
+    }
+  };
+
   return (
-    <Card className={`w-full mb-4 ${prompt.deprecated ? 'opacity-50' : ''}`}>
+    <Card className={`w-full mb-4 ${prompt.deprecated ? "opacity-50" : ""}`}>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-medium">
             {prompt.tags.map((tag, index) => (
-              <span 
-                key={index} 
+              <span
+                key={index}
                 className="inline-block bg-secondary text-secondary-foreground text-xs rounded-full px-2 py-1 mr-1"
               >
                 {tag}
@@ -88,10 +130,10 @@ export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: Pro
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    onClick={handleEdit} 
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleEdit}
                     className="h-8 w-8"
                   >
                     <PencilIcon className="h-4 w-4" />
@@ -100,13 +142,13 @@ export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: Pro
                 <TooltipContent>Edit prompt</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
+                  <Button
+                    variant="outline"
+                    size="icon"
                     onClick={() => setShowHistory(true)}
                     className="h-8 w-8"
                   >
@@ -116,13 +158,13 @@ export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: Pro
                 <TooltipContent>View history</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="default" 
-                    size="icon" 
+                  <Button
+                    variant="default"
+                    size="icon"
                     onClick={handleSelect}
                     className="h-8 w-8"
                   >
@@ -130,6 +172,22 @@ export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: Pro
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Select prompt</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => setConfirmingDelete(true)}
+                    className="h-8 w-8"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Delete prompt</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -140,7 +198,9 @@ export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: Pro
           )}
           <span className="mr-2">Uses: {prompt.uses}</span>
           {prompt.last_used && (
-            <span>Last used: {new Date(prompt.last_used).toLocaleDateString()}</span>
+            <span>
+              Last used: {new Date(prompt.last_used).toLocaleDateString()}
+            </span>
           )}
         </CardDescription>
       </CardHeader>
@@ -158,7 +218,8 @@ export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: Pro
           <DialogHeader>
             <DialogTitle>Edit Prompt</DialogTitle>
             <DialogDescription>
-              Make changes to the prompt text. Save changes for the current session only or persist them.
+              Make changes to the prompt text. Save changes for the current
+              session only or persist them.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -180,9 +241,7 @@ export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: Pro
             <Button variant="secondary" onClick={() => handleUpdate(false)}>
               Update for Session
             </Button>
-            <Button onClick={() => handleUpdate(true)}>
-              Persist Change
-            </Button>
+            <Button onClick={() => handleUpdate(true)}>Persist Change</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -198,7 +257,9 @@ export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: Pro
           </DialogHeader>
           <div className="grid gap-4 py-4">
             {sortedHistory.length === 0 ? (
-              <p className="text-center text-muted-foreground">No history available</p>
+              <p className="text-center text-muted-foreground">
+                No history available
+              </p>
             ) : (
               sortedHistory.map((entry, index) => (
                 <div key={index} className="border rounded-md p-4">
@@ -216,12 +277,17 @@ export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: Pro
                         <DialogHeader>
                           <DialogTitle>Confirm Restore</DialogTitle>
                           <DialogDescription>
-                            Are you sure you want to restore this version? This will update the prompt to this historical version.
+                            Are you sure you want to restore this version? This
+                            will update the prompt to this historical version.
                           </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                          <Button variant="outline" onClick={() => {}}>Cancel</Button>
-                          <Button onClick={() => handleRestoreVersion(entry)}>Confirm</Button>
+                          <Button variant="outline" onClick={() => {}}>
+                            Cancel
+                          </Button>
+                          <Button onClick={() => handleRestoreVersion(entry)}>
+                            Confirm
+                          </Button>
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
@@ -231,6 +297,30 @@ export function PromptItem({ prompt, onSelect, onUpdate, onRestoreVersion }: Pro
               ))
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={confirmingDelete} onOpenChange={setConfirmingDelete}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this prompt? This will mark it as
+              deprecated and it will no longer appear in the prompt store.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmingDelete(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeprecate}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </Card>
@@ -294,6 +384,27 @@ function PlusIcon(props: React.SVGProps<SVGSVGElement>) {
     >
       <path d="M5 12h14" />
       <path d="M12 5v14" />
+    </svg>
+  );
+}
+
+function TrashIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
     </svg>
   );
 }

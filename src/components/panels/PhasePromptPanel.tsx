@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { JSX } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PhasesConfig, PhasePromptsData, PromptFragment, HistoryLogEntry } from "@/types/prompts";
-import { PromptItem } from './PromptItem';
+import {
+  PhasesConfig,
+  PhasePromptsData,
+  PromptFragment,
+  HistoryLogEntry,
+} from "@/types/prompts";
+import { PromptItem } from "./PromptItem";
 
 /**
  * Props for the PhasePromptPanel component
@@ -26,11 +31,24 @@ export interface PhasePromptPanelProps {
   /**
    * Event handler for when a phase prompt is updated
    */
-  onUpdatePhasePrompt?: (phaseId: string, promptId: string, newText: string, persistChange: boolean) => void;
+  onUpdatePhasePrompt?: (
+    phaseId: string,
+    promptId: string,
+    newText: string,
+    persistChange: boolean
+  ) => void;
   /**
    * Event handler for when a historical version is restored
    */
-  onRestoreVersion?: (phaseId: string, promptId: string, historyEntry: HistoryLogEntry) => void;
+  onRestoreVersion?: (
+    phaseId: string,
+    promptId: string,
+    historyEntry: HistoryLogEntry
+  ) => void;
+  /**
+   * Event handler for when a phase prompt is deprecated (soft delete)
+   */
+  onDeprecatePrompt?: (promptId: string, phaseId: string) => Promise<boolean>;
   /**
    * Optional CSS class name for styling
    */
@@ -42,51 +60,60 @@ export interface PhasePromptPanelProps {
  * @param props - Component props
  * @returns JSX.Element
  */
-export function PhasePromptPanel({ 
-  phasesConfig, 
-  phasePromptsMap, 
-  onSelectPhasePrompt, 
-  onUpdatePhasePrompt, 
-  onRestoreVersion, 
-  className 
+export function PhasePromptPanel({
+  phasesConfig,
+  phasePromptsMap,
+  onSelectPhasePrompt,
+  onUpdatePhasePrompt,
+  onRestoreVersion,
+  onDeprecatePrompt,
+  className,
 }: PhasePromptPanelProps): JSX.Element {
   const [activePhase, setActivePhase] = React.useState<string>(
-    phasesConfig.phases.length > 0 ? phasesConfig.phases[0].id : ''
+    phasesConfig.phases.length > 0 ? phasesConfig.phases[0].id : ""
   );
-  const [searchTerm, setSearchTerm] = React.useState('');
+  const [searchTerm, setSearchTerm] = React.useState("");
   const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
 
   // Get current phase prompts data
-  const currentPhasePrompts = phasePromptsMap[activePhase] || { prompts: [] };
+  const currentPhasePrompts = React.useMemo(
+    () => phasePromptsMap[activePhase] || { prompts: [] },
+    [phasePromptsMap, activePhase]
+  );
 
   // Extract all unique tags from current phase prompts
   const allTags = React.useMemo(() => {
     const tagsSet = new Set<string>();
-    currentPhasePrompts.prompts.forEach(prompt => {
-      prompt.tags.forEach(tag => tagsSet.add(tag));
+    currentPhasePrompts.prompts.forEach((prompt) => {
+      prompt.tags.forEach((tag) => tagsSet.add(tag));
     });
     return Array.from(tagsSet);
   }, [currentPhasePrompts]);
 
   // Filter phase prompts based on search term and selected tags
   const filteredPrompts = React.useMemo(() => {
-    return currentPhasePrompts.prompts.filter(prompt => {
+    return currentPhasePrompts.prompts.filter((prompt) => {
+      // Filter out deprecated prompts
+      if (prompt.deprecated) return false;
+
       // Filter by search term
-      const matchesSearchTerm = searchTerm === '' || 
+      const matchesSearchTerm =
+        searchTerm === "" ||
         prompt.text.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       // Filter by selected tags
-      const matchesTags = selectedTags.length === 0 || 
-        selectedTags.some(tag => prompt.tags.includes(tag));
-      
+      const matchesTags =
+        selectedTags.length === 0 ||
+        selectedTags.some((tag) => prompt.tags.includes(tag));
+
       return matchesSearchTerm && matchesTags;
     });
   }, [currentPhasePrompts, searchTerm, selectedTags]);
 
   const toggleTag = (tag: string) => {
-    setSelectedTags(prevTags => 
-      prevTags.includes(tag) 
-        ? prevTags.filter(t => t !== tag) 
+    setSelectedTags((prevTags) =>
+      prevTags.includes(tag)
+        ? prevTags.filter((t) => t !== tag)
         : [...prevTags, tag]
     );
   };
@@ -94,43 +121,45 @@ export function PhasePromptPanel({
   // Handle tab change
   const handleTabChange = (value: string) => {
     setActivePhase(value);
-    setSearchTerm('');
+    setSearchTerm("");
     setSelectedTags([]);
   };
 
   // Find current phase name
-  const currentPhaseName = phasesConfig.phases.find(
-    phase => phase.id === activePhase
-  )?.name || 'Phase';
+  const currentPhaseName =
+    phasesConfig.phases.find((phase) => phase.id === activePhase)?.name ||
+    "Phase";
 
   return (
-    <div className={`flex flex-col h-full border rounded-lg p-4 ${className || ''}`}>
+    <div
+      className={`flex flex-col h-full border rounded-lg p-4 ${
+        className || ""
+      }`}
+    >
       <h2 className="text-xl font-bold mb-4">Phase Prompts</h2>
-      
-      <Tabs 
-        value={activePhase} 
+
+      <Tabs
+        value={activePhase}
         onValueChange={handleTabChange}
         className="w-full mb-4"
       >
         <TabsList className="w-full">
-          {phasesConfig.phases.map(phase => (
-            <TabsTrigger 
-              key={phase.id} 
-              value={phase.id}
-              className="flex-1"
-            >
+          {phasesConfig.phases.map((phase) => (
+            <TabsTrigger key={phase.id} value={phase.id} className="flex-1">
               {phase.name}
             </TabsTrigger>
           ))}
         </TabsList>
-        
-        {phasesConfig.phases.map(phase => (
+
+        {phasesConfig.phases.map((phase) => (
           <TabsContent key={phase.id} value={phase.id} className="mt-2">
-            <p className="text-sm text-muted-foreground mb-2">{phase.description}</p>
+            <p className="text-sm text-muted-foreground mb-2">
+              {phase.description}
+            </p>
           </TabsContent>
         ))}
       </Tabs>
-      
+
       <div className="mb-4">
         <Input
           placeholder={`Search ${currentPhaseName} prompts...`}
@@ -138,9 +167,9 @@ export function PhasePromptPanel({
           onChange={(e) => setSearchTerm(e.target.value)}
           className="mb-2"
         />
-        
+
         <div className="flex flex-wrap gap-1 mb-2">
-          {allTags.map(tag => (
+          {allTags.map((tag) => (
             <Button
               key={tag}
               variant={selectedTags.includes(tag) ? "default" : "outline"}
@@ -152,27 +181,39 @@ export function PhasePromptPanel({
             </Button>
           ))}
         </div>
-        
+
         <Separator className="my-2" />
       </div>
-      
+
       <ScrollArea className="flex-grow">
         <div className="pr-4 space-y-2">
           {!activePhase ? (
-            <p className="text-center text-muted-foreground p-4">No phase selected</p>
+            <p className="text-center text-muted-foreground p-4">
+              No phase selected
+            </p>
           ) : filteredPrompts.length === 0 ? (
-            <p className="text-center text-muted-foreground p-4">No prompts found for this phase</p>
+            <p className="text-center text-muted-foreground p-4">
+              No prompts found for this phase
+            </p>
           ) : (
-            filteredPrompts.map(prompt => (
+            filteredPrompts.map((prompt) => (
               <PromptItem
                 key={prompt.id}
                 prompt={prompt}
                 onSelect={(p) => onSelectPhasePrompt?.(p, activePhase)}
-                onUpdate={(promptId, newText, persistChange) => 
-                  onUpdatePhasePrompt?.(activePhase, promptId, newText, persistChange)
+                onUpdate={(promptId, newText, persistChange) =>
+                  onUpdatePhasePrompt?.(
+                    activePhase,
+                    promptId,
+                    newText,
+                    persistChange
+                  )
                 }
-                onRestoreVersion={(promptId, historyEntry) => 
+                onRestoreVersion={(promptId, historyEntry) =>
                   onRestoreVersion?.(activePhase, promptId, historyEntry)
+                }
+                onDeprecate={(promptId) =>
+                  onDeprecatePrompt?.(promptId, activePhase)
                 }
               />
             ))
