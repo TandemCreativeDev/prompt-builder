@@ -294,7 +294,7 @@ export function PromptBuilder({
           showGenerated ? "grid-cols-2 gap-4" : "grid-cols-1"
         }`}
       >
-        <div className="w-full">
+        <div className="h-[40vh] w-full overflow-hidden">
           <PhasePromptPanel
             phasesConfig={phasesConfig}
             phasePromptsMap={phasePromptsMap}
@@ -303,12 +303,12 @@ export function PromptBuilder({
             onRestoreVersion={onRestorePhasePrompt}
             onDeprecatePrompt={onDeprecatePhasePrompt}
             onCreatePrompt={onCreatePhasePrompt}
-            className="h-full"
+            className="h-full overflow-auto"
           />
         </div>
 
         {showGenerated && (
-          <Card className="h-full">
+          <Card className="h-full row-span-1">
             <CardContent className="p-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Generated Prompt</h3>
@@ -345,11 +345,10 @@ export function PromptBuilder({
       </div>
 
       {/* Bottom Panels - Three Columns */}
-      <div className="grid grid-cols-3 gap-4 h-[40vh]">
+      <div className="grid grid-cols-3 gap-4 h-[40vh] ">
         {/* Left Panel - Prefix */}
         <Card className="h-full">
           <CardContent className="p-4 h-full">
-            <h3 className="text-lg font-semibold mb-2">Prefix</h3>
             <div className="mb-2">
               {selectedPrefix && (
                 <div className="bg-muted p-2 rounded-md text-sm mb-2">
@@ -358,7 +357,7 @@ export function PromptBuilder({
                 </div>
               )}
             </div>
-            <ScrollArea className="h-[calc(100%-80px)]">
+            <div className="h-[35vh] w-full overflow-hidden">
               <PrefixPanel
                 prefixes={prefixesData}
                 onSelectPrefix={onSelectPrefix}
@@ -366,16 +365,16 @@ export function PromptBuilder({
                 onRestoreVersion={onRestorePrefix}
                 onDeprecatePrompt={onDeprecatePrefix}
                 onCreatePrompt={onCreatePrefix}
-                className="h-full"
+                className="h-full overflow-auto"
               />
-            </ScrollArea>
+            </div>
           </CardContent>
         </Card>
 
         {/* Center Panel - Main Text */}
-        <Card className="h-full">
+        <Card className="h-full overflow-hidden">
           <CardContent className="p-4 h-full flex flex-col">
-            <h3 className="text-lg font-semibold mb-2">Main Text</h3>
+            <h2 className="text-lg font-semibold mb-2">Main Text</h2>
             <div className="flex-grow relative">
               <textarea
                 ref={textareaRef}
@@ -536,7 +535,6 @@ export function PromptBuilder({
         {/* Right Panel - Suffix */}
         <Card className="h-full">
           <CardContent className="p-4 h-full">
-            <h3 className="text-lg font-semibold mb-2">Suffix</h3>
             <div className="mb-2">
               {selectedSuffix && (
                 <div className="bg-muted p-2 rounded-md text-sm mb-2">
@@ -545,7 +543,7 @@ export function PromptBuilder({
                 </div>
               )}
             </div>
-            <ScrollArea className="h-[calc(100%-80px)]">
+            <div className="h-[35vh] w-full overflow-hidden">
               <SuffixPanel
                 suffixes={suffixesData}
                 onSelectSuffix={onSelectSuffix}
@@ -553,9 +551,9 @@ export function PromptBuilder({
                 onRestoreVersion={onRestoreSuffix}
                 onDeprecatePrompt={onDeprecateSuffix}
                 onCreatePrompt={onCreateSuffix}
-                className="h-full"
+                className="h-full overflow-auto"
               />
-            </ScrollArea>
+            </div>
           </CardContent>
         </Card>
       </div>
