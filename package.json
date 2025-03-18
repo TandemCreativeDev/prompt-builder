@@ -59,6 +59,7 @@
     "next-swagger-doc": "^0.4.1",
     "swagger": "^0.7.5",
     "swagger-ui": "^5.20.1",
+    "swagger-ui-dist": "^5.20.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

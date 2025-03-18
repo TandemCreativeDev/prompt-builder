@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import 'swagger-ui/dist/swagger-ui.css';
+import 'swagger-ui-dist/swagger-ui.css';
 
 /**
  * Page component for displaying the API documentation using Swagger UI
@@ -12,23 +12,38 @@ export default function ApiDocs() {
   useEffect(() => {
     // Dynamically import SwaggerUI only on client-side
     const initSwaggerUI = async () => {
-      const { default: SwaggerUI } = await import('swagger-ui');
-      SwaggerUI({
-        dom_id: '#swagger-ui',
-        url: '/api/docs',
-        presets: [
-          SwaggerUI.presets.apis,
-          SwaggerUI.SwaggerUIStandalonePreset,
-        ],
-        layout: 'BaseLayout',
-        deepLinking: true,
-      });
-      setIsLoaded(true);
+      try {
+        // Import the standalone bundle instead of the module
+        const SwaggerUIBundle = await import('swagger-ui-dist/swagger-ui-bundle.js');
+        const SwaggerUIStandalonePreset = await import('swagger-ui-dist/swagger-ui-standalone-preset.js');
+        
+        SwaggerUIBundle.default({
+          dom_id: '#swagger-ui',
+          url: '/api/docs',
+          presets: [
+            SwaggerUIBundle.default.presets.apis,
+            SwaggerUIStandalonePreset.default
+          ],
+          layout: 'BaseLayout',
+          deepLinking: true,
+        });
+        setIsLoaded(true);
+      } catch (error) {
+        console.error("Failed to initialize Swagger UI:", error);
+      }
     };
 
     if (!isLoaded) {
       initSwaggerUI();
     }
+
+    // Cleanup
+    return () => {
+      const swaggerUiContainer = document.getElementById('swagger-ui');
+      if (swaggerUiContainer) {
+        swaggerUiContainer.innerHTML = '';
+      }
+    };
   }, [isLoaded]);
 
   return (
