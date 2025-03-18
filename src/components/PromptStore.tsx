@@ -1,17 +1,17 @@
-import React, { JSX } from 'react';
+import React, { JSX } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { 
-  PrefixesData, 
-  SuffixesData, 
-  PhasesConfig, 
-  PhasePromptsData, 
-  PromptFragment, 
-  HistoryLogEntry 
+import {
+  PrefixesData,
+  SuffixesData,
+  PhasesConfig,
+  PhasePromptsData,
+  PromptFragment,
+  HistoryLogEntry,
 } from "@/types/prompts";
-import { PrefixPanel } from './panels/PrefixPanel';
-import { SuffixPanel } from './panels/SuffixPanel';
-import { PhasePromptPanel } from './panels/PhasePromptPanel';
+import { PrefixPanel } from "./panels/PrefixPanel";
+import { SuffixPanel } from "./panels/SuffixPanel";
+import { PhasePromptPanel } from "./panels/PhasePromptPanel";
 
 /**
  * Props for the PromptStore component
@@ -48,15 +48,36 @@ export interface PromptStoreProps {
   /**
    * Event handler for updating a prefix
    */
-  onUpdatePrefix?: (prefixId: string, newText: string, persistChange: boolean) => Promise<boolean>;
+  onUpdatePrefix?: (
+    prefixId: string,
+    newText: string,
+    persistChange: boolean
+  ) => Promise<boolean>;
   /**
    * Event handler for updating a suffix
    */
-  onUpdateSuffix?: (suffixId: string, newText: string, persistChange: boolean) => Promise<boolean>;
+  onUpdateSuffix?: (
+    suffixId: string,
+    newText: string,
+    persistChange: boolean
+  ) => Promise<boolean>;
   /**
    * Event handler for updating a phase prompt
    */
-  onUpdatePhasePrompt?: (phaseId: string, promptId: string, newText: string, persistChange: boolean) => Promise<boolean>;
+  onUpdatePhasePrompt?: (
+    phaseId: string,
+    promptId: string,
+    newText: string,
+    persistChange: boolean
+  ) => Promise<boolean>;
+  /**
+   * Event handler for deprecating a prompt
+   */
+  onDeprecatePrompt?: (
+    promptId: string,
+    promptType: "prefix" | "suffix" | "phase",
+    phaseId?: string
+  ) => Promise<boolean>;
 }
 
 /**
@@ -74,19 +95,24 @@ export function PromptStore({
   onSelectPhasePrompt,
   onUpdatePrefix,
   onUpdateSuffix,
-  onUpdatePhasePrompt
+  onUpdatePhasePrompt,
+  onDeprecatePrompt,
 }: PromptStoreProps): JSX.Element {
-  const [activeTab, setActiveTab] = React.useState('prefixes');
+  const [activeTab, setActiveTab] = React.useState("prefixes");
 
   // Handlers for prefix updates
-  const handleUpdatePrefix = async (prefixId: string, newText: string, persistChange: boolean) => {
+  const handleUpdatePrefix = async (
+    prefixId: string,
+    newText: string,
+    persistChange: boolean
+  ) => {
     try {
       if (onUpdatePrefix) {
         const success = await onUpdatePrefix(prefixId, newText, persistChange);
         if (success) {
           toast.success(
-            persistChange 
-              ? "Prefix updated and persisted" 
+            persistChange
+              ? "Prefix updated and persisted"
               : "Prefix updated for the current session"
           );
           return;
@@ -100,7 +126,10 @@ export function PromptStore({
   };
 
   // Handler for restoring a prefix version
-  const handleRestorePrefixVersion = async (prefixId: string, historyEntry: HistoryLogEntry) => {
+  const handleRestorePrefixVersion = async (
+    prefixId: string,
+    historyEntry: HistoryLogEntry
+  ) => {
     try {
       if (onUpdatePrefix) {
         const success = await onUpdatePrefix(prefixId, historyEntry.text, true);
@@ -117,14 +146,18 @@ export function PromptStore({
   };
 
   // Handlers for suffix updates
-  const handleUpdateSuffix = async (suffixId: string, newText: string, persistChange: boolean) => {
+  const handleUpdateSuffix = async (
+    suffixId: string,
+    newText: string,
+    persistChange: boolean
+  ) => {
     try {
       if (onUpdateSuffix) {
         const success = await onUpdateSuffix(suffixId, newText, persistChange);
         if (success) {
           toast.success(
-            persistChange 
-              ? "Suffix updated and persisted" 
+            persistChange
+              ? "Suffix updated and persisted"
               : "Suffix updated for the current session"
           );
           return;
@@ -138,7 +171,10 @@ export function PromptStore({
   };
 
   // Handler for restoring a suffix version
-  const handleRestoreSuffixVersion = async (suffixId: string, historyEntry: HistoryLogEntry) => {
+  const handleRestoreSuffixVersion = async (
+    suffixId: string,
+    historyEntry: HistoryLogEntry
+  ) => {
     try {
       if (onUpdateSuffix) {
         const success = await onUpdateSuffix(suffixId, historyEntry.text, true);
@@ -155,14 +191,24 @@ export function PromptStore({
   };
 
   // Handlers for phase prompt updates
-  const handleUpdatePhasePrompt = async (phaseId: string, promptId: string, newText: string, persistChange: boolean) => {
+  const handleUpdatePhasePrompt = async (
+    phaseId: string,
+    promptId: string,
+    newText: string,
+    persistChange: boolean
+  ) => {
     try {
       if (onUpdatePhasePrompt) {
-        const success = await onUpdatePhasePrompt(phaseId, promptId, newText, persistChange);
+        const success = await onUpdatePhasePrompt(
+          phaseId,
+          promptId,
+          newText,
+          persistChange
+        );
         if (success) {
           toast.success(
-            persistChange 
-              ? "Phase prompt updated and persisted" 
+            persistChange
+              ? "Phase prompt updated and persisted"
               : "Phase prompt updated for the current session"
           );
           return;
@@ -176,10 +222,19 @@ export function PromptStore({
   };
 
   // Handler for restoring a phase prompt version
-  const handleRestorePhasePromptVersion = async (phaseId: string, promptId: string, historyEntry: HistoryLogEntry) => {
+  const handleRestorePhasePromptVersion = async (
+    phaseId: string,
+    promptId: string,
+    historyEntry: HistoryLogEntry
+  ) => {
     try {
       if (onUpdatePhasePrompt) {
-        const success = await onUpdatePhasePrompt(phaseId, promptId, historyEntry.text, true);
+        const success = await onUpdatePhasePrompt(
+          phaseId,
+          promptId,
+          historyEntry.text,
+          true
+        );
         if (success) {
           toast.success("Restored previous version of phase prompt");
           return;
@@ -192,37 +247,80 @@ export function PromptStore({
     }
   };
 
+  // Handler for deprecating prompts
+  const handleDeprecatePrompt = async (
+    promptId: string,
+    promptType: "prefix" | "suffix" | "phase",
+    phaseId?: string
+  ) => {
+    try {
+      if (onDeprecatePrompt) {
+        const success = await onDeprecatePrompt(promptId, promptType, phaseId);
+        if (success) {
+          toast.success(
+            `${
+              promptType.charAt(0).toUpperCase() + promptType.slice(1)
+            } prompt deprecated successfully`
+          );
+          return true;
+        }
+      }
+      toast.error(`Failed to deprecate ${promptType} prompt`);
+      return false;
+    } catch (error) {
+      console.error(`Error deprecating ${promptType} prompt:`, error);
+      toast.error(`Error deprecating ${promptType} prompt`);
+      return false;
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full">
       <h1 className="text-2xl font-bold mb-4">Prompt Store</h1>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full">
+
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full h-full"
+      >
         <TabsList className="w-full mb-4">
-          <TabsTrigger value="prefixes" className="flex-1">Prefixes</TabsTrigger>
-          <TabsTrigger value="suffixes" className="flex-1">Suffixes</TabsTrigger>
-          <TabsTrigger value="phasePrompts" className="flex-1">Phase Prompts</TabsTrigger>
+          <TabsTrigger value="prefixes" className="flex-1">
+            Prefixes
+          </TabsTrigger>
+          <TabsTrigger value="suffixes" className="flex-1">
+            Suffixes
+          </TabsTrigger>
+          <TabsTrigger value="phasePrompts" className="flex-1">
+            Phase Prompts
+          </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="prefixes" className="h-[calc(100%-50px)]">
           <PrefixPanel
             prefixes={prefixesData}
             onSelectPrefix={onSelectPrefix}
             onUpdatePrefix={handleUpdatePrefix}
             onRestoreVersion={handleRestorePrefixVersion}
+            onDeprecatePrompt={(promptId) =>
+              handleDeprecatePrompt(promptId, "prefix")
+            }
             className="h-full"
           />
         </TabsContent>
-        
+
         <TabsContent value="suffixes" className="h-[calc(100%-50px)]">
           <SuffixPanel
             suffixes={suffixesData}
             onSelectSuffix={onSelectSuffix}
             onUpdateSuffix={handleUpdateSuffix}
             onRestoreVersion={handleRestoreSuffixVersion}
+            onDeprecatePrompt={(promptId) =>
+              handleDeprecatePrompt(promptId, "suffix")
+            }
             className="h-full"
           />
         </TabsContent>
-        
+
         <TabsContent value="phasePrompts" className="h-[calc(100%-50px)]">
           <PhasePromptPanel
             phasesConfig={phasesConfig}
@@ -230,6 +328,9 @@ export function PromptStore({
             onSelectPhasePrompt={onSelectPhasePrompt}
             onUpdatePhasePrompt={handleUpdatePhasePrompt}
             onRestoreVersion={handleRestorePhasePromptVersion}
+            onDeprecatePrompt={(promptId, phaseId) =>
+              handleDeprecatePrompt(promptId, "phase", phaseId)
+            }
             className="h-full"
           />
         </TabsContent>

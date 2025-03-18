@@ -282,6 +282,60 @@ export default function PromptStorePage() {
     );
   }
 
+  const handleDeprecatePrompt = async (
+    promptId: string, 
+    promptType: 'prefix' | 'suffix' | 'phase', 
+    phaseId?: string
+  ): Promise<boolean> => {
+    try {
+      const response = await fetch("/api/prompts/deprecate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ promptId, promptType, phaseId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to deprecate ${promptType} prompt`);
+      }
+
+      // Update local state based on prompt type
+      if (promptType === 'prefix') {
+        setPrefixesData((prev) => ({
+          prefixes: prev.prefixes.map((prefix) =>
+            prefix.id === promptId ? { ...prefix, deprecated: true } : prefix
+          ),
+        }));
+      } else if (promptType === 'suffix') {
+        setSuffixesData((prev) => ({
+          suffixes: prev.suffixes.map((suffix) =>
+            suffix.id === promptId ? { ...suffix, deprecated: true } : suffix
+          ),
+        }));
+      } else if (promptType === 'phase' && phaseId) {
+        setPhasePromptsMap((prev) => {
+          const phasePrompts = prev[phaseId];
+          if (!phasePrompts) return prev;
+
+          return {
+            ...prev,
+            [phaseId]: {
+              prompts: phasePrompts.prompts.map((prompt) =>
+                prompt.id === promptId ? { ...prompt, deprecated: true } : prompt
+              ),
+            },
+          };
+        });
+      }
+
+      return true;
+    } catch (error) {
+      console.error(`Error deprecating ${promptType} prompt:`, error);
+      return false;
+    }
+  };
+
   return (
     <div className="container mx-auto p-4 min-h-screen">
       <Toaster />
@@ -296,6 +350,7 @@ export default function PromptStorePage() {
         onUpdatePrefix={handleUpdatePrefix}
         onUpdateSuffix={handleUpdateSuffix}
         onUpdatePhasePrompt={handleUpdatePhasePrompt}
+        onDeprecatePrompt={handleDeprecatePrompt}
       />
     </div>
   );
