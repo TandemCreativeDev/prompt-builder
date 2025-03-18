@@ -1,6 +1,6 @@
 # AI-Assisted Prompt Repository & Generator
 
-This project is a Next.js TypeScript web application that serves as a prompt repository and generator specifically tailored for an AI-assisted software development process.
+This project is a Next.js TypeScript web application that serves as a prompt repository and generator specifically tailored for an AI-assisted software development process. It is designed to be used with [the process](PROCESS.md) for AI-assisted development.
 
 ## Features
 
