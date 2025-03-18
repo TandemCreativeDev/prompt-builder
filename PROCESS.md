@@ -1,6 +1,6 @@
 # The Process
 
-## Taxonomy of AI models
+## Taxonomy of LLMs
 
 We categorise models based on the capabilities into 3 groups:
 
