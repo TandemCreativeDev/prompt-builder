@@ -1,55 +1,62 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import 'swagger-ui-dist/swagger-ui.css';
+import dynamic from 'next/dynamic';
+
+// Import CSS for Swagger UI
+import 'swagger-ui-react/swagger-ui.css';
+
+// Dynamically import SwaggerUI React component with SSR disabled
+const SwaggerUI = dynamic(
+  () => import('swagger-ui-react').then((mod) => mod.default),
+  { ssr: false }
+);
 
 /**
  * Page component for displaying the API documentation using Swagger UI
  */
 export default function ApiDocs() {
-  const [isLoaded, setIsLoaded] = useState(false);
+  // Use state to track client-side rendering
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Dynamically import SwaggerUI only on client-side
-    const initSwaggerUI = async () => {
+    setIsMounted(true);
+  }, []);
+
+  const [swaggerSpec, setSwaggerSpec] = useState<any>(null);
+
+  // Fetch the API docs directly
+  useEffect(() => {
+    const fetchApiDocs = async () => {
       try {
-        // Import the standalone bundle instead of the module
-        const SwaggerUIBundle = await import('swagger-ui-dist/swagger-ui-bundle.js');
-        const SwaggerUIStandalonePreset = await import('swagger-ui-dist/swagger-ui-standalone-preset.js');
-        
-        SwaggerUIBundle.default({
-          dom_id: '#swagger-ui',
-          url: '/api/docs',
-          presets: [
-            SwaggerUIBundle.default.presets.apis,
-            SwaggerUIStandalonePreset.default
-          ],
-          layout: 'BaseLayout',
-          deepLinking: true,
-        });
-        setIsLoaded(true);
+        const response = await fetch('/api/docs');
+        if (!response.ok) {
+          throw new Error('Failed to fetch API docs');
+        }
+        const data = await response.json();
+        setSwaggerSpec(data);
       } catch (error) {
-        console.error("Failed to initialize Swagger UI:", error);
+        console.error('Error fetching API docs:', error);
       }
     };
 
-    if (!isLoaded) {
-      initSwaggerUI();
+    if (isMounted) {
+      fetchApiDocs();
     }
-
-    // Cleanup
-    return () => {
-      const swaggerUiContainer = document.getElementById('swagger-ui');
-      if (swaggerUiContainer) {
-        swaggerUiContainer.innerHTML = '';
-      }
-    };
-  }, [isLoaded]);
+  }, [isMounted]);
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Prompt Builder API Documentation</h1>
-      <div id="swagger-ui" />
+      
+      {/* Only render SwaggerUI when component is mounted on client and spec is loaded */}
+      {isMounted && swaggerSpec ? (
+        <SwaggerUI spec={swaggerSpec} />
+      ) : (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      )}
     </div>
   );
 }
