@@ -182,18 +182,15 @@ Instructions:
 1. Develop a layout that includes:
    - Top panel for Phase Prompts (with placeholders to be filled by the user).
    - Bottom panels: Left for Prefix, Centre for Main Text, and Right for Suffix.
-   - Action buttons between the panels: "Generate" (with Ctrl+Enter) and "Tidy with AI and Generate" (with Ctrl+T+Enter).
-   - A separate output box to display the generated prompt along with a copy button.
+   - Action buttons between top and bottom panels: "Generate" (with Ctrl+Enter) and "Tidy with AI and Generate" (with Ctrl+T+Enter).
+   - A separate output box to display the generated prompt along with a copy button, this splits the top panel in 2 when generated with the generated prompts in the right-side box.
 2. Implement keyboard shortcuts that open dropdowns for:
    - `/` for general prompt options.
    - `#` for phase prompts.
    - `$` for prefix prompts.
    - `@` for suffix prompts.
 3. Document each UI component and maintain clear separation of concerns using functional components (e.g., `function MainTextArea(props: { value: string, onChange: (val: string) => void }): JSX.Element`).
-4. Write integration tests to verify:
-   - Correct assembly order of components.
-   - Functionality of keyboard shortcuts.
-   - Proper display of the generated prompt.
+4. No tests required.
 References: [Next.js Component Patterns](https://nextjs.org/docs/basic-features/pages) and [shadcn/ui Documentation](https://ui.shadcn.com/).
 Deliverable: Fully functional Prompt Builder UI components integrated with clear documentation and tests.
 ```
