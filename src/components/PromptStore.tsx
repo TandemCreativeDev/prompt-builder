@@ -78,6 +78,25 @@ export interface PromptStoreProps {
     promptType: "prefix" | "suffix" | "phase",
     phaseId?: string
   ) => Promise<boolean>;
+  /**
+   * Event handler for creating a new prefix
+   */
+  onCreatePrefix?: (
+    newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">
+  ) => Promise<boolean>;
+  /**
+   * Event handler for creating a new suffix
+   */
+  onCreateSuffix?: (
+    newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">
+  ) => Promise<boolean>;
+  /**
+   * Event handler for creating a new phase prompt
+   */
+  onCreatePhasePrompt?: (
+    phaseId: string,
+    newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">
+  ) => Promise<boolean>;
 }
 
 /**
@@ -97,6 +116,9 @@ export function PromptStore({
   onUpdateSuffix,
   onUpdatePhasePrompt,
   onDeprecatePrompt,
+  onCreatePrefix,
+  onCreateSuffix,
+  onCreatePhasePrompt,
 }: PromptStoreProps): JSX.Element {
   const [activeTab, setActiveTab] = React.useState("prefixes");
 
@@ -302,6 +324,7 @@ export function PromptStore({
             onDeprecatePrompt={(promptId) =>
               handleDeprecatePrompt(promptId, "prefix")
             }
+            onCreatePrompt={onCreatePrefix}
             className="h-full"
           />
         </TabsContent>
@@ -315,6 +338,7 @@ export function PromptStore({
             onDeprecatePrompt={(promptId) =>
               handleDeprecatePrompt(promptId, "suffix")
             }
+            onCreatePrompt={onCreateSuffix}
             className="h-full"
           />
         </TabsContent>
@@ -329,6 +353,7 @@ export function PromptStore({
             onDeprecatePrompt={(promptId, phaseId) =>
               handleDeprecatePrompt(promptId, "phase", phaseId)
             }
+            onCreatePrompt={onCreatePhasePrompt}
             className="h-full"
           />
         </TabsContent>

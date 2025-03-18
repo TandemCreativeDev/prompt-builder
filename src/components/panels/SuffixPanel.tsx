@@ -37,7 +37,9 @@ export interface SuffixPanelProps {
   /**
    * Event handler for creating a new suffix
    */
-  onCreatePrompt?: (newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">) => Promise<boolean>;
+  onCreatePrompt?: (
+    newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">
+  ) => Promise<boolean>;
   /**
    * Optional CSS class name for styling
    */
@@ -79,7 +81,7 @@ export function SuffixPanel({
   // Filter suffixes based on search term and selected tags
   const filteredSuffixes = React.useMemo(() => {
     if (!suffixes?.suffixes) return [];
-    
+
     return suffixes.suffixes.filter((suffix) => {
       // Filter out deprecated prompts
       if (suffix.deprecated) return false;
@@ -108,16 +110,16 @@ export function SuffixPanel({
 
   const handleCreatePrompt = async () => {
     if (!onCreatePrompt || !newPromptText.trim()) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // Process tags from comma-separated string to array
       const tags = newPromptTags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag !== '');
-      
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag !== "");
+
       const success = await onCreatePrompt({
         text: newPromptText,
         tags: tags,
@@ -126,7 +128,7 @@ export function SuffixPanel({
         ai_version_compatibility: ["gpt-4"], // Default value
         deprecated: false,
       });
-      
+
       if (success) {
         setNewPromptText("");
         setNewPromptTags("");
@@ -148,8 +150,8 @@ export function SuffixPanel({
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Suffix Prompts</h2>
         {onCreatePrompt && !isCreating && (
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             onClick={() => setIsCreating(true)}
             variant="outline"
           >
@@ -173,7 +175,9 @@ export function SuffixPanel({
               />
             </div>
             <div>
-              <label className="text-xs font-medium">Tags (comma-separated):</label>
+              <label className="text-xs font-medium">
+                Tags (comma-separated):
+              </label>
               <Input
                 value={newPromptTags}
                 onChange={(e) => setNewPromptTags(e.target.value)}
@@ -183,16 +187,16 @@ export function SuffixPanel({
               />
             </div>
             <div className="flex justify-end gap-2 pt-1">
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setIsCreating(false)}
                 disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 onClick={handleCreatePrompt}
                 disabled={!newPromptText.trim() || isSubmitting}
               >
@@ -228,7 +232,7 @@ export function SuffixPanel({
         <Separator className="my-2" />
       </div>
 
-      <ScrollArea className="flex-grow">
+      <ScrollArea className="flex-grow overflow-auto">
         <div className="pr-4 space-y-2">
           {filteredSuffixes.length === 0 ? (
             <p className="text-center text-muted-foreground p-4">

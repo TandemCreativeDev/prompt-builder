@@ -112,7 +112,7 @@ export function PhasePromptPanel({
     if (!currentPhasePrompts || !currentPhasePrompts.prompts) {
       return [];
     }
-    
+
     return currentPhasePrompts.prompts.filter((prompt) => {
       // Filter out deprecated prompts
       if (prompt.deprecated) return false;
@@ -141,29 +141,26 @@ export function PhasePromptPanel({
 
   const handleCreatePrompt = async () => {
     if (!onCreatePrompt || !newPromptText.trim() || !activePhase) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // Process tags from comma-separated string to array
       const tags = newPromptTags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag !== '');
-      
-      const success = await onCreatePrompt(
-        activePhase,
-        {
-          text: newPromptText,
-          tags: tags,
-          uses: 0,
-          created_by: "user", // Default value
-          ai_version_compatibility: ["gpt-4"], // Default value
-          deprecated: false,
-          phase_id: activePhase, // Set the phase id
-        }
-      );
-      
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag !== "");
+
+      const success = await onCreatePrompt(activePhase, {
+        text: newPromptText,
+        tags: tags,
+        uses: 0,
+        created_by: "user", // Default value
+        ai_version_compatibility: ["gpt-4"], // Default value
+        deprecated: false,
+        phase_id: activePhase, // Set the phase id
+      });
+
       if (success) {
         setNewPromptText("");
         setNewPromptTags("");
@@ -181,7 +178,7 @@ export function PhasePromptPanel({
     setActivePhase(value);
     setSearchTerm("");
     setSelectedTags([]);
-    
+
     // Reset create form if it's open
     if (isCreating) {
       setIsCreating(false);
@@ -204,8 +201,8 @@ export function PhasePromptPanel({
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Phase Prompts</h2>
         {onCreatePrompt && !isCreating && activePhase && (
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             onClick={() => setIsCreating(true)}
             variant="outline"
           >
@@ -238,7 +235,9 @@ export function PhasePromptPanel({
 
       {isCreating && activePhase && (
         <div className="mb-4 border rounded-md p-3 bg-muted/20">
-          <h3 className="text-sm font-semibold mb-2">Create New {currentPhaseName} Prompt</h3>
+          <h3 className="text-sm font-semibold mb-2">
+            Create New {currentPhaseName} Prompt
+          </h3>
           <div className="space-y-2">
             <div>
               <label className="text-xs font-medium">Text:</label>
@@ -251,7 +250,9 @@ export function PhasePromptPanel({
               />
             </div>
             <div>
-              <label className="text-xs font-medium">Tags (comma-separated):</label>
+              <label className="text-xs font-medium">
+                Tags (comma-separated):
+              </label>
               <Input
                 value={newPromptTags}
                 onChange={(e) => setNewPromptTags(e.target.value)}
@@ -261,16 +262,16 @@ export function PhasePromptPanel({
               />
             </div>
             <div className="flex justify-end gap-2 pt-1">
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setIsCreating(false)}
                 disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 onClick={handleCreatePrompt}
                 disabled={!newPromptText.trim() || isSubmitting}
               >
@@ -306,7 +307,7 @@ export function PhasePromptPanel({
         <Separator className="my-2" />
       </div>
 
-      <ScrollArea className="flex-grow">
+      <ScrollArea className="flex-grow overflow-auto">
         <div className="pr-4 space-y-2">
           {!activePhase ? (
             <p className="text-center text-muted-foreground p-4">

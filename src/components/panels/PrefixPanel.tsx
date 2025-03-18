@@ -228,7 +228,7 @@ export function PrefixPanel({
         <Separator className="my-2" />
       </div>
 
-      <ScrollArea className="flex-grow">
+      <ScrollArea className="flex-grow overflow-auto">
         <div className="pr-4 space-y-2">
           {filteredPrefixes.length === 0 ? (
             <p className="text-center text-muted-foreground p-4">
