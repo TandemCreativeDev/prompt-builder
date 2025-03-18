@@ -232,6 +232,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   
+  /generate:
+    post:
+      summary: Generate AI-refined text using OpenAI API
+      description: Sends text to the OpenAI API for refinement and tidying
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateRequest'
+      responses:
+        '200':
+          description: Successfully refined text
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error or OpenAI API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /history:
     get:
       summary: Retrieve prompt generation history
@@ -272,6 +302,50 @@ paths:
 
 components:
   schemas:
+    GenerateRequest:
+      type: object
+      required:
+        - mainText
+      properties:
+        mainText:
+          type: string
+          description: Main text to be tidied or refined
+        model:
+          type: string
+          description: Optional model to use (defaults to gpt-4o)
+        temperature:
+          type: number
+          format: float
+          description: Optional temperature setting (0-2, defaults to 0.7)
+        maxTokens:
+          type: integer
+          description: Optional max tokens setting (defaults to 1000)
+          
+    GenerateResponse:
+      type: object
+      required:
+        - refinedText
+        - model
+      properties:
+        refinedText:
+          type: string
+          description: The refined/tidied text from the OpenAI API
+        model:
+          type: string
+          description: The model used for generation
+        metadata:
+          type: object
+          properties:
+            completionTokens:
+              type: integer
+              description: Completion tokens used
+            promptTokens:
+              type: integer
+              description: Prompt tokens used
+            totalTokens:
+              type: integer
+              description: Total tokens used
+              
     HistoryLogEntry:
       type: object
       required:

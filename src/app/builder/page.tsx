@@ -133,10 +133,55 @@ export default function PromptBuilderPage() {
     toast.success("Prompt generated!");
   };
 
-  const handleTidyAndGenerate = () => {
-    // This will be implemented in Task 6 with the OpenAI API
-    toast.info("AI refinement will be implemented in Task 6");
-    handleGeneratePrompt();
+  const handleTidyAndGenerate = async () => {
+    if (!mainText || mainText.trim() === "") {
+      toast.error("Please enter some text to tidy");
+      return;
+    }
+
+    try {
+      // Show loading toast
+      toast.loading("Tidying text with AI...");
+
+      // Call the OpenAI API via our backend
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mainText: mainText,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to tidy text with AI");
+      }
+
+      const data = await response.json();
+      
+      // Update the main text with the refined version
+      setMainText(data.refinedText);
+      toast.success("Text tidied successfully!");
+      
+      // Generate the prompt with the refined text
+      const prefixText = selectedPrefix ? selectedPrefix.text : "";
+      const phaseText = selectedPhasePrompt ? selectedPhasePrompt.text : "";
+      const suffixText = selectedSuffix ? selectedSuffix.text : "";
+      
+      const assembled = [prefixText, phaseText, data.refinedText, suffixText]
+        .filter(Boolean)
+        .join("\n\n");
+      
+      setGeneratedPrompt(assembled);
+
+    } catch (error) {
+      console.error("Error tidying text:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to tidy text with AI");
+    } finally {
+      toast.dismiss();
+    }
   };
 
   if (loading) {
