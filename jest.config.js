@@ -6,7 +6,7 @@ const config = {
   transform: {
     "^.+\\.(ts|tsx|js|jsx)$": [
       "babel-jest",
-      { configFile: "./babel.config.js" },
+      { configFile: "./babeltest.config.js" },
     ],
   },
   moduleNameMapper: {
