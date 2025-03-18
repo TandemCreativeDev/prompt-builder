@@ -633,6 +633,117 @@ export default function PromptBuilderPage() {
       return false;
     }
   };
+  
+  // Add new handlers for creating prompts
+  const handleCreatePrefix = async (newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">) => {
+    try {
+      const response = await fetch("/api/prompts/prefixes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newPrompt),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create prefix");
+      }
+
+      // Refresh the prefixes
+      const prefixesResponse = await fetch("/api/prompts/prefixes");
+      if (!prefixesResponse.ok) {
+        throw new Error("Failed to refresh prefixes after creation");
+      }
+      const updatedPrefixesData = await prefixesResponse.json();
+      setPrefixesData(updatedPrefixesData);
+
+      toast.success("Prefix created successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error creating prefix:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create prefix"
+      );
+      return false;
+    }
+  };
+
+  const handleCreateSuffix = async (newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">) => {
+    try {
+      const response = await fetch("/api/prompts/suffixes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newPrompt),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create suffix");
+      }
+
+      // Refresh the suffixes
+      const suffixesResponse = await fetch("/api/prompts/suffixes");
+      if (!suffixesResponse.ok) {
+        throw new Error("Failed to refresh suffixes after creation");
+      }
+      const updatedSuffixesData = await suffixesResponse.json();
+      setSuffixesData(updatedSuffixesData);
+
+      toast.success("Suffix created successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error creating suffix:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create suffix"
+      );
+      return false;
+    }
+  };
+
+  const handleCreatePhasePrompt = async (
+    phaseId: string,
+    newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">
+  ) => {
+    try {
+      const response = await fetch(`/api/prompts/phases/${phaseId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newPrompt),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create phase prompt");
+      }
+
+      // Refresh the phase prompts
+      const phasePromptResponse = await fetch(`/api/prompts/phases/${phaseId}`);
+      if (!phasePromptResponse.ok) {
+        throw new Error("Failed to refresh phase prompts after creation");
+      }
+      const updatedPhasePrompts = await phasePromptResponse.json();
+
+      // Update the phase prompts map
+      setPhasePromptsMap({
+        ...phasePromptsMap,
+        [phaseId]: updatedPhasePrompts,
+      });
+
+      toast.success("Phase prompt created successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error creating phase prompt:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create phase prompt"
+      );
+      return false;
+    }
+  };
 
   const handleMainTextChange = (text: string) => {
     setMainText(text);
@@ -808,6 +919,9 @@ export default function PromptBuilderPage() {
           onDeprecatePrefix={handleDeprecatePrefix}
           onDeprecateSuffix={handleDeprecateSuffix}
           onDeprecatePhasePrompt={handleDeprecatePhasePrompt}
+          onCreatePrefix={handleCreatePrefix}
+          onCreateSuffix={handleCreateSuffix}
+          onCreatePhasePrompt={handleCreatePhasePrompt}
         />
       </div>
     </div>
