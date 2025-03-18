@@ -283,8 +283,8 @@ export default function PromptStorePage() {
   }
 
   const handleDeprecatePrompt = async (
-    promptId: string, 
-    promptType: 'prefix' | 'suffix' | 'phase', 
+    promptId: string,
+    promptType: "prefix" | "suffix" | "phase",
     phaseId?: string
   ): Promise<boolean> => {
     try {
@@ -301,19 +301,19 @@ export default function PromptStorePage() {
       }
 
       // Update local state based on prompt type
-      if (promptType === 'prefix') {
+      if (promptType === "prefix") {
         setPrefixesData((prev) => ({
           prefixes: prev.prefixes.map((prefix) =>
             prefix.id === promptId ? { ...prefix, deprecated: true } : prefix
           ),
         }));
-      } else if (promptType === 'suffix') {
+      } else if (promptType === "suffix") {
         setSuffixesData((prev) => ({
           suffixes: prev.suffixes.map((suffix) =>
             suffix.id === promptId ? { ...suffix, deprecated: true } : suffix
           ),
         }));
-      } else if (promptType === 'phase' && phaseId) {
+      } else if (promptType === "phase" && phaseId) {
         setPhasePromptsMap((prev) => {
           const phasePrompts = prev[phaseId];
           if (!phasePrompts) return prev;
@@ -322,7 +322,9 @@ export default function PromptStorePage() {
             ...prev,
             [phaseId]: {
               prompts: phasePrompts.prompts.map((prompt) =>
-                prompt.id === promptId ? { ...prompt, deprecated: true } : prompt
+                prompt.id === promptId
+                  ? { ...prompt, deprecated: true }
+                  : prompt
               ),
             },
           };
@@ -341,8 +343,8 @@ export default function PromptStorePage() {
       <Toaster />
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Prompt Store</h1>
-        <a 
-          href="/builder" 
+        <a
+          href="/builder"
           className="px-3 py-1 bg-primary text-primary-foreground rounded hover:bg-primary/90 text-sm"
         >
           Go to Prompt Builder

@@ -32,10 +32,14 @@ export default function PromptBuilderPage() {
   const [error, setError] = useState<string | null>(null);
 
   // State for selected prompt fragments
-  const [selectedPrefix, setSelectedPrefix] = useState<PromptFragment | null>(null);
-  const [selectedSuffix, setSelectedSuffix] = useState<PromptFragment | null>(null);
-  const [selectedPhasePrompt, setSelectedPhasePrompt] = useState<PromptFragment | null>(null);
-  const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
+  const [selectedPrefix, setSelectedPrefix] = useState<PromptFragment | null>(
+    null
+  );
+  const [selectedSuffix, setSelectedSuffix] = useState<PromptFragment | null>(
+    null
+  );
+  const [selectedPhasePrompt, setSelectedPhasePrompt] =
+    useState<PromptFragment | null>(null);
   const [mainText, setMainText] = useState<string>("");
   const [generatedPrompt, setGeneratedPrompt] = useState<string | null>(null);
 
@@ -109,7 +113,6 @@ export default function PromptBuilderPage() {
     phaseId: string
   ) => {
     setSelectedPhasePrompt(phasePrompt);
-    setSelectedPhaseId(phaseId);
     toast.info(
       `Selected phase prompt: ${phasePrompt.id} for phase: ${phaseId}`
     );
@@ -124,11 +127,11 @@ export default function PromptBuilderPage() {
     const prefixText = selectedPrefix ? selectedPrefix.text : "";
     const phaseText = selectedPhasePrompt ? selectedPhasePrompt.text : "";
     const suffixText = selectedSuffix ? selectedSuffix.text : "";
-    
+
     const assembled = [prefixText, phaseText, mainText, suffixText]
       .filter(Boolean)
       .join("\n\n");
-    
+
     setGeneratedPrompt(assembled);
     toast.success("Prompt generated!");
   };
@@ -160,25 +163,26 @@ export default function PromptBuilderPage() {
       }
 
       const data = await response.json();
-      
+
       // Update the main text with the refined version
       setMainText(data.refinedText);
       toast.success("Text tidied successfully!");
-      
+
       // Generate the prompt with the refined text
       const prefixText = selectedPrefix ? selectedPrefix.text : "";
       const phaseText = selectedPhasePrompt ? selectedPhasePrompt.text : "";
       const suffixText = selectedSuffix ? selectedSuffix.text : "";
-      
+
       const assembled = [prefixText, phaseText, data.refinedText, suffixText]
         .filter(Boolean)
         .join("\n\n");
-      
-      setGeneratedPrompt(assembled);
 
+      setGeneratedPrompt(assembled);
     } catch (error) {
       console.error("Error tidying text:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to tidy text with AI");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to tidy text with AI"
+      );
     } finally {
       toast.dismiss();
     }
@@ -219,14 +223,14 @@ export default function PromptBuilderPage() {
       <Toaster />
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Prompt Builder</h1>
-        <a 
-          href="/store" 
+        <a
+          href="/store"
           className="px-3 py-1 bg-secondary text-secondary-foreground rounded hover:bg-secondary/90 text-sm"
         >
           Go to Prompt Store
         </a>
       </div>
-      
+
       <div className="h-[calc(100vh-150px)]">
         <PromptBuilder
           prefixesData={prefixesData}

@@ -1,14 +1,7 @@
-import React, { useState, useEffect, KeyboardEvent, useRef } from "react";
+import React, { useState, useEffect, KeyboardEvent, useRef, JSX } from "react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { PrefixPanel } from "./panels/PrefixPanel";
 import { SuffixPanel } from "./panels/SuffixPanel";
 import { PhasePromptPanel } from "./panels/PhasePromptPanel";
@@ -103,7 +96,6 @@ export function PromptBuilder({
   onSelectPhasePrompt,
   selectedPrefix,
   selectedSuffix,
-  selectedPhasePrompt,
   mainText,
   onMainTextChange,
   generatedPrompt,
@@ -118,12 +110,14 @@ export function PromptBuilder({
 
   // Reference to the textarea
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  
+
   // Dropdown state
   const [showDropdown, setShowDropdown] = useState(false);
-  const [dropdownType, setDropdownType] = useState<"all" | "phase" | "prefix" | "suffix">("all");
+  const [dropdownType, setDropdownType] = useState<
+    "all" | "phase" | "prefix" | "suffix"
+  >("all");
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
-  
+
   // Handle keyboard shortcuts
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     // Generate prompt shortcuts
@@ -133,38 +127,43 @@ export function PromptBuilder({
     } else if (event.ctrlKey && event.key === "t") {
       event.preventDefault();
       onTidyAndGenerate?.();
-    } 
-    
+    }
+
     // Handle dropdown triggers at the start of a line
-    else if (event.currentTarget.selectionStart === 0 || 
-             event.currentTarget.value.charAt(event.currentTarget.selectionStart - 1) === '\n') {
-      
-      const handleDropdownTrigger = (type: "all" | "phase" | "prefix" | "suffix") => {
+    else if (
+      event.currentTarget.selectionStart === 0 ||
+      event.currentTarget.value.charAt(
+        event.currentTarget.selectionStart - 1
+      ) === "\n"
+    ) {
+      const handleDropdownTrigger = (
+        type: "all" | "phase" | "prefix" | "suffix"
+      ) => {
         event.preventDefault();
-        
+
         // Calculate position for the dropdown based on cursor position
         if (textareaRef.current) {
           // Get cursor position
           const cursorPosition = textareaRef.current.selectionStart;
           const text = textareaRef.current.value.substring(0, cursorPosition);
-          const lines = text.split('\n');
+          const lines = text.split("\n");
           const currentLineIndex = lines.length - 1;
-          
+
           // Approximate the position based on line and character counts
           // This is simplified and might need adjustment based on font size, etc.
           const lineHeight = 24; // approximate line height in pixels
           const charWidth = 8; // approximate character width in pixels
-          
+
           setDropdownPosition({
-            top: (currentLineIndex * lineHeight) + 30, // Add some offset
-            left: (lines[currentLineIndex].length * charWidth) + 10 // Add some offset
+            top: currentLineIndex * lineHeight + 30, // Add some offset
+            left: lines[currentLineIndex].length * charWidth + 10, // Add some offset
           });
         }
-        
+
         setDropdownType(type);
         setShowDropdown(true);
       };
-      
+
       if (event.key === "/") {
         handleDropdownTrigger("all");
       } else if (event.key === "#") {
@@ -176,11 +175,15 @@ export function PromptBuilder({
       }
     }
   };
-  
+
   // Handle selecting an item from the dropdown
-  const handleDropdownSelect = (item: PromptFragment, type: "phase" | "prefix" | "suffix", phaseId?: string) => {
+  const handleDropdownSelect = (
+    item: PromptFragment,
+    type: "phase" | "prefix" | "suffix",
+    phaseId?: string
+  ) => {
     setShowDropdown(false);
-    
+
     if (type === "prefix" && onSelectPrefix) {
       onSelectPrefix(item);
     } else if (type === "suffix" && onSelectSuffix) {
@@ -198,7 +201,11 @@ export function PromptBuilder({
   return (
     <div className="flex flex-col w-full h-full gap-4">
       {/* Top half - Phase Prompt Panel */}
-      <div className={`grid ${showGenerated ? "grid-cols-2 gap-4" : "grid-cols-1"}`}>
+      <div
+        className={`grid ${
+          showGenerated ? "grid-cols-2 gap-4" : "grid-cols-1"
+        }`}
+      >
         <div className="w-full">
           <PhasePromptPanel
             phasesConfig={phasesConfig}
@@ -233,11 +240,7 @@ export function PromptBuilder({
 
       {/* Action Buttons - Centered */}
       <div className="flex justify-center gap-4 py-4">
-        <Button
-          variant="default"
-          className="px-6"
-          onClick={onGenerate}
-        >
+        <Button variant="default" className="px-6" onClick={onGenerate}>
           Generate (Ctrl+Enter)
         </Button>
         <Button
@@ -286,13 +289,13 @@ export function PromptBuilder({
                 onChange={(e) => onMainTextChange(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
-              
+
               {/* Shortcut Dropdown */}
               {showDropdown && (
-                <div 
+                <div
                   className="absolute z-10 bg-white dark:bg-gray-800 border shadow-lg rounded-md p-2 w-64"
-                  style={{ 
-                    top: `${dropdownPosition.top}px`, 
+                  style={{
+                    top: `${dropdownPosition.top}px`,
                     left: `${dropdownPosition.left}px`,
                   }}
                 >
@@ -302,108 +305,127 @@ export function PromptBuilder({
                     {dropdownType === "suffix" && "Suffixes"}
                     {dropdownType === "phase" && "Phase Prompts"}
                   </div>
-                  
+
                   <ScrollArea className="h-[200px]">
-                    {dropdownType === "prefix" && prefixesData.prefixes
-                      .filter(prefix => !prefix.deprecated)
-                      .map(prefix => (
-                        <button
-                          key={prefix.id}
-                          className="w-full text-left px-2 py-1 text-sm hover:bg-muted rounded-sm mb-1 truncate"
-                          onClick={() => handleDropdownSelect(prefix, "prefix")}
-                        >
-                          {prefix.text.substring(0, 40)}...
-                        </button>
-                      ))
-                    }
-                    
-                    {dropdownType === "suffix" && suffixesData.suffixes
-                      .filter(suffix => !suffix.deprecated)
-                      .map(suffix => (
-                        <button
-                          key={suffix.id}
-                          className="w-full text-left px-2 py-1 text-sm hover:bg-muted rounded-sm mb-1 truncate"
-                          onClick={() => handleDropdownSelect(suffix, "suffix")}
-                        >
-                          {suffix.text.substring(0, 40)}...
-                        </button>
-                      ))
-                    }
-                    
-                    {(dropdownType === "phase" || dropdownType === "all") && 
-                      phasesConfig.phases.map(phase => (
+                    {dropdownType === "prefix" &&
+                      prefixesData.prefixes
+                        .filter((prefix) => !prefix.deprecated)
+                        .map((prefix) => (
+                          <button
+                            key={prefix.id}
+                            className="w-full text-left px-2 py-1 text-sm hover:bg-muted rounded-sm mb-1 truncate"
+                            onClick={() =>
+                              handleDropdownSelect(prefix, "prefix")
+                            }
+                          >
+                            {prefix.text.substring(0, 40)}...
+                          </button>
+                        ))}
+
+                    {dropdownType === "suffix" &&
+                      suffixesData.suffixes
+                        .filter((suffix) => !suffix.deprecated)
+                        .map((suffix) => (
+                          <button
+                            key={suffix.id}
+                            className="w-full text-left px-2 py-1 text-sm hover:bg-muted rounded-sm mb-1 truncate"
+                            onClick={() =>
+                              handleDropdownSelect(suffix, "suffix")
+                            }
+                          >
+                            {suffix.text.substring(0, 40)}...
+                          </button>
+                        ))}
+
+                    {(dropdownType === "phase" || dropdownType === "all") &&
+                      phasesConfig.phases.map((phase) => (
                         <div key={phase.id} className="mb-2">
                           <div className="px-2 py-1 bg-secondary/20 text-xs font-medium">
                             {phase.name}
                           </div>
                           {phasePromptsMap[phase.id]?.prompts
-                            .filter(prompt => !prompt.deprecated)
-                            .map(prompt => (
+                            .filter((prompt) => !prompt.deprecated)
+                            .map((prompt) => (
                               <button
                                 key={prompt.id}
                                 className="w-full text-left px-2 py-1 text-sm hover:bg-muted rounded-sm mb-1 truncate"
-                                onClick={() => handleDropdownSelect(prompt, "phase", phase.id)}
+                                onClick={() =>
+                                  handleDropdownSelect(
+                                    prompt,
+                                    "phase",
+                                    phase.id
+                                  )
+                                }
                               >
                                 {prompt.text.substring(0, 40)}...
                               </button>
-                            ))
-                          }
+                            ))}
                         </div>
-                      ))
-                    }
-                    
+                      ))}
+
                     {dropdownType === "all" && (
                       <>
                         <div className="px-2 py-1 bg-secondary/20 text-xs font-medium mt-2">
                           Prefixes
                         </div>
                         {prefixesData.prefixes
-                          .filter(prefix => !prefix.deprecated)
+                          .filter((prefix) => !prefix.deprecated)
                           .slice(0, 3) // Limit shown items
-                          .map(prefix => (
+                          .map((prefix) => (
                             <button
                               key={prefix.id}
                               className="w-full text-left px-2 py-1 text-sm hover:bg-muted rounded-sm mb-1 truncate"
-                              onClick={() => handleDropdownSelect(prefix, "prefix")}
+                              onClick={() =>
+                                handleDropdownSelect(prefix, "prefix")
+                              }
                             >
                               {prefix.text.substring(0, 40)}...
                             </button>
-                          ))
-                        }
-                        
+                          ))}
+
                         <div className="px-2 py-1 bg-secondary/20 text-xs font-medium mt-2">
                           Suffixes
                         </div>
                         {suffixesData.suffixes
-                          .filter(suffix => !suffix.deprecated)
+                          .filter((suffix) => !suffix.deprecated)
                           .slice(0, 3) // Limit shown items
-                          .map(suffix => (
+                          .map((suffix) => (
                             <button
                               key={suffix.id}
                               className="w-full text-left px-2 py-1 text-sm hover:bg-muted rounded-sm mb-1 truncate"
-                              onClick={() => handleDropdownSelect(suffix, "suffix")}
+                              onClick={() =>
+                                handleDropdownSelect(suffix, "suffix")
+                              }
                             >
                               {suffix.text.substring(0, 40)}...
                             </button>
-                          ))
-                        }
+                          ))}
                       </>
                     )}
-                    
+
                     {/* No results message */}
-                    {((dropdownType === "prefix" && prefixesData.prefixes.filter(p => !p.deprecated).length === 0) ||
-                      (dropdownType === "suffix" && suffixesData.suffixes.filter(s => !s.deprecated).length === 0) ||
-                      (dropdownType === "phase" && Object.values(phasePromptsMap).every(p => p.prompts.filter(prompt => !prompt.deprecated).length === 0))) && (
+                    {((dropdownType === "prefix" &&
+                      prefixesData.prefixes.filter((p) => !p.deprecated)
+                        .length === 0) ||
+                      (dropdownType === "suffix" &&
+                        suffixesData.suffixes.filter((s) => !s.deprecated)
+                          .length === 0) ||
+                      (dropdownType === "phase" &&
+                        Object.values(phasePromptsMap).every(
+                          (p) =>
+                            p.prompts.filter((prompt) => !prompt.deprecated)
+                              .length === 0
+                        ))) && (
                       <div className="px-2 py-4 text-sm text-muted-foreground text-center">
                         No prompts available
                       </div>
                     )}
                   </ScrollArea>
-                  
+
                   <div className="mt-2 flex justify-end">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => setShowDropdown(false)}
                     >
                       Cancel
@@ -438,26 +460,5 @@ export function PromptBuilder({
         </Card>
       </div>
     </div>
-  );
-}
-
-// Utility function to create the copy icon
-function CopyIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
   );
 }
