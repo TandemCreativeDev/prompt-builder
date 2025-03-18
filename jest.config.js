@@ -6,7 +6,7 @@ const config = {
   transform: {
     "^.+\\.(ts|tsx|js|jsx)$": [
       "babel-jest",
-      { configFile: "./babel.config.test.js" },
+      { configFile: "./babel.config.js" },
     ],
   },
   moduleNameMapper: {
@@ -14,11 +14,7 @@ const config = {
     "^@/lib/(.*)$": "<rootDir>/src/lib/$1",
     "^@/app/(.*)$": "<rootDir>/src/app/$1",
   },
-  testPathIgnorePatterns: [
-    "<rootDir>/node_modules/",
-    "<rootDir>/.next/",
-    "<rootDir>/babel.config.test.js",
-  ],
+  testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
 };
 
 // Export config
