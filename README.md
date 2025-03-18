@@ -19,7 +19,7 @@ This project is a Next.js TypeScript web application that serves as a prompt rep
 First, install the dependencies:
 
 ```bash
-npm install
+npm install --legacy-peer-deps
 ```
 
 Then, run the development server:
