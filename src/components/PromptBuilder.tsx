@@ -1,5 +1,4 @@
 import React, { useState, useEffect, KeyboardEvent, useRef, JSX } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -86,7 +85,7 @@ export interface PromptBuilderProps {
     prefixId: string,
     newText: string,
     persistChange: boolean
-  ) => Promise<boolean>;
+  ) => void;
   /**
    * Event handler for updating a suffix
    */
@@ -94,7 +93,7 @@ export interface PromptBuilderProps {
     suffixId: string,
     newText: string,
     persistChange: boolean
-  ) => Promise<boolean>;
+  ) => void;
   /**
    * Event handler for updating a phase prompt
    */
@@ -103,7 +102,7 @@ export interface PromptBuilderProps {
     promptId: string,
     newText: string,
     persistChange: boolean
-  ) => Promise<boolean>;
+  ) => void;
   /**
    * Event handler for restoring a prefix to a previous version
    */
@@ -179,6 +178,9 @@ export function PromptBuilder({
   onUpdatePrefix,
   onUpdateSuffix,
   onUpdatePhasePrompt,
+  onRestorePrefix,
+  onRestoreSuffix,
+  onRestorePhasePrompt,
   onDeprecatePrefix,
   onDeprecateSuffix,
   onDeprecatePhasePrompt,
@@ -203,152 +205,6 @@ export function PromptBuilder({
     "all" | "phase" | "prefix" | "suffix"
   >("all");
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
-
-  const handleUpdatePrefix = async (
-    prefixId: string,
-    newText: string,
-    persistChange: boolean
-  ) => {
-    try {
-      if (onUpdatePrefix) {
-        const success = await onUpdatePrefix(prefixId, newText, persistChange);
-        if (success) {
-          toast.success(
-            persistChange
-              ? "Prefix updated and persisted"
-              : "Prefix updated for the current session"
-          );
-          return;
-        }
-      }
-      toast.error("Failed to update prefix");
-    } catch (error) {
-      console.error("Error updating prefix:", error);
-      toast.error("Error updating prefix");
-    }
-  };
-
-  // Handler for restoring a prefix version
-  const handleRestorePrefixVersion = async (
-    prefixId: string,
-    historyEntry: HistoryLogEntry
-  ) => {
-    try {
-      if (onUpdatePrefix) {
-        const success = await onUpdatePrefix(prefixId, historyEntry.text, true);
-        if (success) {
-          toast.success("Restored previous version of prefix");
-          return;
-        }
-      }
-      toast.error("Failed to restore prefix version");
-    } catch (error) {
-      console.error("Error restoring prefix version:", error);
-      toast.error("Error restoring prefix version");
-    }
-  };
-
-  // Handlers for suffix updates
-  const handleUpdateSuffix = async (
-    suffixId: string,
-    newText: string,
-    persistChange: boolean
-  ) => {
-    try {
-      if (onUpdateSuffix) {
-        const success = await onUpdateSuffix(suffixId, newText, persistChange);
-        if (success) {
-          toast.success(
-            persistChange
-              ? "Suffix updated and persisted"
-              : "Suffix updated for the current session"
-          );
-          return;
-        }
-      }
-      toast.error("Failed to update suffix");
-    } catch (error) {
-      console.error("Error updating suffix:", error);
-      toast.error("Error updating suffix");
-    }
-  };
-
-  // Handler for restoring a suffix version
-  const handleRestoreSuffixVersion = async (
-    suffixId: string,
-    historyEntry: HistoryLogEntry
-  ) => {
-    try {
-      if (onUpdateSuffix) {
-        const success = await onUpdateSuffix(suffixId, historyEntry.text, true);
-        if (success) {
-          toast.success("Restored previous version of suffix");
-          return;
-        }
-      }
-      toast.error("Failed to restore suffix version");
-    } catch (error) {
-      console.error("Error restoring suffix version:", error);
-      toast.error("Error restoring suffix version");
-    }
-  };
-
-  // Handlers for phase prompt updates
-  const handleUpdatePhasePrompt = async (
-    phaseId: string,
-    promptId: string,
-    newText: string,
-    persistChange: boolean
-  ) => {
-    try {
-      if (onUpdatePhasePrompt) {
-        const success = await onUpdatePhasePrompt(
-          phaseId,
-          promptId,
-          newText,
-          persistChange
-        );
-        if (success) {
-          toast.success(
-            persistChange
-              ? "Phase prompt updated and persisted"
-              : "Phase prompt updated for the current session"
-          );
-          return;
-        }
-      }
-      toast.error("Failed to update phase prompt");
-    } catch (error) {
-      console.error("Error updating phase prompt:", error);
-      toast.error("Error updating phase prompt");
-    }
-  };
-
-  // Handler for restoring a phase prompt version
-  const handleRestorePhasePromptVersion = async (
-    phaseId: string,
-    promptId: string,
-    historyEntry: HistoryLogEntry
-  ) => {
-    try {
-      if (onUpdatePhasePrompt) {
-        const success = await onUpdatePhasePrompt(
-          phaseId,
-          promptId,
-          historyEntry.text,
-          true
-        );
-        if (success) {
-          toast.success("Restored previous version of phase prompt");
-          return;
-        }
-      }
-      toast.error("Failed to restore phase prompt version");
-    } catch (error) {
-      console.error("Error restoring phase prompt version:", error);
-      toast.error("Error restoring phase prompt version");
-    }
-  };
 
   // Handle keyboard shortcuts
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -443,8 +299,8 @@ export function PromptBuilder({
             phasesConfig={phasesConfig}
             phasePromptsMap={phasePromptsMap}
             onSelectPhasePrompt={onSelectPhasePrompt}
-            onUpdatePhasePrompt={handleUpdatePhasePrompt}
-            onRestoreVersion={handleRestorePhasePromptVersion}
+            onUpdatePhasePrompt={onUpdatePhasePrompt}
+            onRestoreVersion={onRestorePhasePrompt}
             onDeprecatePrompt={onDeprecatePhasePrompt}
             onCreatePrompt={onCreatePhasePrompt}
             className="h-full"
@@ -506,8 +362,8 @@ export function PromptBuilder({
               <PrefixPanel
                 prefixes={prefixesData}
                 onSelectPrefix={onSelectPrefix}
-                onUpdatePrefix={handleUpdatePrefix}
-                onRestoreVersion={handleRestorePrefixVersion}
+                onUpdatePrefix={onUpdatePrefix}
+                onRestoreVersion={onRestorePrefix}
                 onDeprecatePrompt={onDeprecatePrefix}
                 onCreatePrompt={onCreatePrefix}
                 className="h-full"
@@ -693,8 +549,8 @@ export function PromptBuilder({
               <SuffixPanel
                 suffixes={suffixesData}
                 onSelectSuffix={onSelectSuffix}
-                onUpdateSuffix={handleUpdateSuffix}
-                onRestoreVersion={handleRestoreSuffixVersion}
+                onUpdateSuffix={onUpdateSuffix}
+                onRestoreVersion={onRestoreSuffix}
                 onDeprecatePrompt={onDeprecateSuffix}
                 onCreatePrompt={onCreateSuffix}
                 className="h-full"

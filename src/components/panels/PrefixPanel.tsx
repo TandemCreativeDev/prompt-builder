@@ -68,14 +68,18 @@ export function PrefixPanel({
   // Extract all unique tags from prefixes
   const allTags = React.useMemo(() => {
     const tagsSet = new Set<string>();
-    prefixes.prefixes.forEach((prefix) => {
-      prefix.tags.forEach((tag) => tagsSet.add(tag));
-    });
+    if (prefixes?.prefixes) {
+      prefixes.prefixes.forEach((prefix) => {
+        prefix.tags.forEach((tag) => tagsSet.add(tag));
+      });
+    }
     return Array.from(tagsSet);
   }, [prefixes]);
 
   // Filter prefixes based on search term and selected tags
   const filteredPrefixes = React.useMemo(() => {
+    if (!prefixes?.prefixes) return [];
+    
     return prefixes.prefixes.filter((prefix) => {
       // Filter out deprecated prompts
       if (prefix.deprecated) return false;

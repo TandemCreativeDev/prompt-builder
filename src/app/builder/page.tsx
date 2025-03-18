@@ -44,59 +44,61 @@ export default function PromptBuilderPage() {
   const [mainText, setMainText] = useState<string>("");
   const [generatedPrompt, setGeneratedPrompt] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch prefixes
-        const prefixesResponse = await fetch("/api/prompts/prefixes");
-        if (!prefixesResponse.ok) {
-          throw new Error("Failed to fetch prefixes");
-        }
-        const prefixesData = await prefixesResponse.json();
-        setPrefixesData(prefixesData);
-
-        // Fetch suffixes
-        const suffixesResponse = await fetch("/api/prompts/suffixes");
-        if (!suffixesResponse.ok) {
-          throw new Error("Failed to fetch suffixes");
-        }
-        const suffixesData = await suffixesResponse.json();
-        setSuffixesData(suffixesData);
-
-        // Fetch phases configuration
-        const phasesResponse = await fetch("/api/prompts/phases");
-        if (!phasesResponse.ok) {
-          throw new Error("Failed to fetch phases");
-        }
-        const phasesData = await phasesResponse.json();
-        setPhasesConfig(phasesData);
-
-        // Fetch phase prompts for each phase
-        const phasePromptsMap: Record<string, PhasePromptsData> = {};
-        await Promise.all(
-          phasesData.phases.map(async (phase: { id: string | number }) => {
-            const phasePromptResponse = await fetch(
-              `/api/prompts/phases/${phase.id}`
-            );
-            if (phasePromptResponse.ok) {
-              const phasePromptData = await phasePromptResponse.json();
-              phasePromptsMap[phase.id] = phasePromptData;
-            }
-          })
-        );
-        setPhasePromptsMap(phasePromptsMap);
-
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
-        setLoading(false);
+  // Function to fetch all data - reusable for initial load and refreshes
+  const fetchAllData = async () => {
+    try {
+      // Fetch prefixes
+      const prefixesResponse = await fetch("/api/prompts/prefixes");
+      if (!prefixesResponse.ok) {
+        throw new Error("Failed to fetch prefixes");
       }
-    };
+      const prefixesData = await prefixesResponse.json();
+      setPrefixesData(prefixesData);
 
-    fetchData();
+      // Fetch suffixes
+      const suffixesResponse = await fetch("/api/prompts/suffixes");
+      if (!suffixesResponse.ok) {
+        throw new Error("Failed to fetch suffixes");
+      }
+      const suffixesData = await suffixesResponse.json();
+      setSuffixesData(suffixesData);
+
+      // Fetch phases configuration
+      const phasesResponse = await fetch("/api/prompts/phases");
+      if (!phasesResponse.ok) {
+        throw new Error("Failed to fetch phases");
+      }
+      const phasesData = await phasesResponse.json();
+      setPhasesConfig(phasesData);
+
+      // Fetch phase prompts for each phase
+      const phasePromptsMap: Record<string, PhasePromptsData> = {};
+      await Promise.all(
+        phasesData.phases.map(async (phase: { id: string | number }) => {
+          const phasePromptResponse = await fetch(
+            `/api/prompts/phases/${phase.id}`
+          );
+          if (phasePromptResponse.ok) {
+            const phasePromptData = await phasePromptResponse.json();
+            phasePromptsMap[phase.id] = phasePromptData;
+          }
+        })
+      );
+      // Use spread to create a new object reference to ensure React detects the change
+      setPhasePromptsMap({...phasePromptsMap});
+
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllData();
   }, []);
 
   // Prefix handlers
@@ -113,6 +115,12 @@ export default function PromptBuilderPage() {
     try {
       // If persistChange is false, we just want to update the UI temporarily
       if (!persistChange) {
+        // Make a defensive copy of the data first
+        if (!prefixesData?.prefixes) {
+          toast.error("Prefix data is not available");
+          return;
+        }
+        
         // Find and update the prefix in the local state
         const updatedPrefixes = {
           prefixes: prefixesData.prefixes.map((prefix) =>
@@ -152,21 +160,34 @@ export default function PromptBuilderPage() {
         throw new Error(errorData.error || "Failed to update prefix");
       }
 
-      // Update local state with the response
-      const updatedPrefixesData = await response.json();
-      setPrefixesData(updatedPrefixesData);
+      // Immediately update the local state defensively
+      setPrefixesData((prevData) => {
+        if (!prevData?.prefixes) return prevData;
+        
+        return {
+          prefixes: prevData.prefixes.map((prefix) =>
+            prefix.id === prefixId
+              ? { ...prefix, text: newText, length: newText.length }
+              : prefix
+          ),
+        };
+      });
 
       // Update the selected prefix if it's the one being edited
       if (selectedPrefix && selectedPrefix.id === prefixId) {
-        const updatedPrefix = updatedPrefixesData.prefixes.find(
-          (p: PromptFragment) => p.id === prefixId
-        );
-        if (updatedPrefix) {
-          setSelectedPrefix(updatedPrefix);
-        }
+        setSelectedPrefix({
+          ...selectedPrefix,
+          text: newText,
+          length: newText.length,
+        });
       }
 
       toast.success("Prefix updated successfully!");
+      
+      // Schedule a refresh of all data to ensure everything is in sync
+      setTimeout(() => {
+        fetchAllData();
+      }, 300);
     } catch (error) {
       console.error("Error updating prefix:", error);
       toast.error(
@@ -279,6 +300,12 @@ export default function PromptBuilderPage() {
     try {
       // If persistChange is false, we just want to update the UI temporarily
       if (!persistChange) {
+        // Make a defensive copy of the data first
+        if (!suffixesData?.suffixes) {
+          toast.error("Suffix data is not available");
+          return;
+        }
+        
         // Find and update the suffix in the local state
         const updatedSuffixes = {
           suffixes: suffixesData.suffixes.map((suffix) =>
@@ -318,21 +345,34 @@ export default function PromptBuilderPage() {
         throw new Error(errorData.error || "Failed to update suffix");
       }
 
-      // Update local state with the response
-      const updatedSuffixesData = await response.json();
-      setSuffixesData(updatedSuffixesData);
+      // Immediately update the local state defensively
+      setSuffixesData((prevData) => {
+        if (!prevData?.suffixes) return prevData;
+        
+        return {
+          suffixes: prevData.suffixes.map((suffix) =>
+            suffix.id === suffixId
+              ? { ...suffix, text: newText, length: newText.length }
+              : suffix
+          ),
+        };
+      });
 
       // Update the selected suffix if it's the one being edited
       if (selectedSuffix && selectedSuffix.id === suffixId) {
-        const updatedSuffix = updatedSuffixesData.suffixes.find(
-          (s: PromptFragment) => s.id === suffixId
-        );
-        if (updatedSuffix) {
-          setSelectedSuffix(updatedSuffix);
-        }
+        setSelectedSuffix({
+          ...selectedSuffix,
+          text: newText,
+          length: newText.length,
+        });
       }
 
       toast.success("Suffix updated successfully!");
+      
+      // Schedule a refresh of all data to ensure everything is in sync
+      setTimeout(() => {
+        fetchAllData();
+      }, 300);
     } catch (error) {
       console.error("Error updating suffix:", error);
       toast.error(
@@ -363,21 +403,34 @@ export default function PromptBuilderPage() {
         throw new Error(errorData.error || "Failed to restore suffix version");
       }
 
-      // Update local state with the response
-      const updatedSuffixesData = await response.json();
-      setSuffixesData(updatedSuffixesData);
+      // Update local state defensively
+      setSuffixesData((prevData) => {
+        if (!prevData?.suffixes) return prevData;
+        
+        return {
+          suffixes: prevData.suffixes.map((suffix) =>
+            suffix.id === suffixId
+              ? { ...suffix, text: historyEntry.text, length: historyEntry.text.length }
+              : suffix
+          ),
+        };
+      });
 
       // Update the selected suffix if it's the one being restored
       if (selectedSuffix && selectedSuffix.id === suffixId) {
-        const updatedSuffix = updatedSuffixesData.suffixes.find(
-          (s: PromptFragment) => s.id === suffixId
-        );
-        if (updatedSuffix) {
-          setSelectedSuffix(updatedSuffix);
-        }
+        setSelectedSuffix({
+          ...selectedSuffix,
+          text: historyEntry.text,
+          length: historyEntry.text.length,
+        });
       }
 
       toast.success("Suffix restored to previous version!");
+      
+      // Schedule a refresh of all data to ensure everything is in sync
+      setTimeout(() => {
+        fetchAllData();
+      }, 300);
     } catch (error) {
       console.error("Error restoring suffix version:", error);
       toast.error(
@@ -454,8 +507,8 @@ export default function PromptBuilderPage() {
         // Make a deep copy of the phase prompts map to update
         const updatedPhasePromptsMap = { ...phasePromptsMap };
 
-        // Find the phase and update the prompt
-        if (updatedPhasePromptsMap[phaseId]) {
+        // Find the phase and update the prompt - with null checks
+        if (updatedPhasePromptsMap[phaseId] && updatedPhasePromptsMap[phaseId].prompts) {
           updatedPhasePromptsMap[phaseId] = {
             ...updatedPhasePromptsMap[phaseId],
             prompts: updatedPhasePromptsMap[phaseId].prompts.map((prompt) =>
@@ -497,26 +550,40 @@ export default function PromptBuilderPage() {
         throw new Error(errorData.error || "Failed to update phase prompt");
       }
 
-      // Update local state with the response
-      const updatedPhasePrompts = await response.json();
-
-      // Update the phase prompts map
-      setPhasePromptsMap({
-        ...phasePromptsMap,
-        [phaseId]: updatedPhasePrompts,
+      // Apply immediate defensive state update
+      setPhasePromptsMap((prevMap) => {
+        if (!prevMap || !prevMap[phaseId] || !prevMap[phaseId].prompts) {
+          return prevMap;
+        }
+        
+        const updatedMap = { ...prevMap };
+        updatedMap[phaseId] = {
+          ...updatedMap[phaseId],
+          prompts: updatedMap[phaseId].prompts.map((prompt) =>
+            prompt.id === promptId
+              ? { ...prompt, text: newText, length: newText.length }
+              : prompt
+          ),
+        };
+        
+        return updatedMap;
       });
 
       // Update the selected phase prompt if it's the one being edited
       if (selectedPhasePrompt && selectedPhasePrompt.id === promptId) {
-        const updatedPrompt = updatedPhasePrompts.prompts.find(
-          (p: PromptFragment) => p.id === promptId
-        );
-        if (updatedPrompt) {
-          setSelectedPhasePrompt(updatedPrompt);
-        }
+        setSelectedPhasePrompt({
+          ...selectedPhasePrompt,
+          text: newText,
+          length: newText.length,
+        });
       }
 
       toast.success("Phase prompt updated successfully!");
+      
+      // Schedule a refresh of all data to ensure everything is in sync
+      setTimeout(() => {
+        fetchAllData();
+      }, 300);
     } catch (error) {
       console.error("Error updating phase prompt:", error);
       toast.error(

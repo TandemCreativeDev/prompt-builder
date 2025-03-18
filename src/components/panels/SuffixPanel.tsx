@@ -68,14 +68,18 @@ export function SuffixPanel({
   // Extract all unique tags from suffixes
   const allTags = React.useMemo(() => {
     const tagsSet = new Set<string>();
-    suffixes.suffixes.forEach((suffix) => {
-      suffix.tags.forEach((tag) => tagsSet.add(tag));
-    });
+    if (suffixes?.suffixes) {
+      suffixes.suffixes.forEach((suffix) => {
+        suffix.tags.forEach((tag) => tagsSet.add(tag));
+      });
+    }
     return Array.from(tagsSet);
   }, [suffixes]);
 
   // Filter suffixes based on search term and selected tags
   const filteredSuffixes = React.useMemo(() => {
+    if (!suffixes?.suffixes) return [];
+    
     return suffixes.suffixes.filter((suffix) => {
       // Filter out deprecated prompts
       if (suffix.deprecated) return false;
