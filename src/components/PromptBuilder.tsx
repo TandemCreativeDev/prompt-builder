@@ -11,6 +11,7 @@ import {
   PhasesConfig,
   PhasePromptsData,
   PromptFragment,
+  HistoryLogEntry,
 } from "@/types/prompts";
 
 /**
@@ -77,6 +78,66 @@ export interface PromptBuilderProps {
    * The generated prompt
    */
   generatedPrompt: string | null;
+  /**
+   * Event handler for updating a prefix
+   */
+  onUpdatePrefix?: (
+    prefixId: string,
+    newText: string,
+    persistChange: boolean
+  ) => void;
+  /**
+   * Event handler for updating a suffix
+   */
+  onUpdateSuffix?: (
+    suffixId: string,
+    newText: string,
+    persistChange: boolean
+  ) => void;
+  /**
+   * Event handler for updating a phase prompt
+   */
+  onUpdatePhasePrompt?: (
+    phaseId: string,
+    promptId: string,
+    newText: string,
+    persistChange: boolean
+  ) => void;
+  /**
+   * Event handler for restoring a prefix to a previous version
+   */
+  onRestorePrefix?: (prefixId: string, historyEntry: HistoryLogEntry) => void;
+  /**
+   * Event handler for restoring a suffix to a previous version
+   */
+  onRestoreSuffix?: (suffixId: string, historyEntry: HistoryLogEntry) => void;
+  /**
+   * Event handler for restoring a phase prompt to a previous version
+   */
+  onRestorePhasePrompt?: (
+    phaseId: string,
+    promptId: string,
+    historyEntry: HistoryLogEntry
+  ) => void;
+  /**
+   * Event handler for deprecating a prefix
+   */
+  onDeprecatePrefix?: (prefixId: string) => Promise<boolean>;
+  /**
+   * Event handler for deprecating a suffix
+   */
+  onDeprecateSuffix?: (suffixId: string) => Promise<boolean>;
+  /**
+   * Event handler for deprecating a phase prompt
+   */
+  onDeprecatePhasePrompt?: (
+    promptId: string,
+    phaseId: string
+  ) => Promise<boolean>;
+  /**
+   * Flag indicating if an update is in progress
+   */
+  isUpdating?: boolean;
 }
 
 /**
@@ -99,6 +160,15 @@ export function PromptBuilder({
   mainText,
   onMainTextChange,
   generatedPrompt,
+  onUpdatePrefix,
+  onUpdateSuffix,
+  onUpdatePhasePrompt,
+  onRestorePrefix,
+  onRestoreSuffix,
+  onRestorePhasePrompt,
+  onDeprecatePrefix,
+  onDeprecateSuffix,
+  onDeprecatePhasePrompt,
 }: PromptBuilderProps): JSX.Element {
   // Track if generated prompt is visible
   const [showGenerated, setShowGenerated] = useState<boolean>(false);
@@ -211,6 +281,9 @@ export function PromptBuilder({
             phasesConfig={phasesConfig}
             phasePromptsMap={phasePromptsMap}
             onSelectPhasePrompt={onSelectPhasePrompt}
+            onUpdatePhasePrompt={onUpdatePhasePrompt}
+            onRestoreVersion={onRestorePhasePrompt}
+            onDeprecatePrompt={onDeprecatePhasePrompt}
             className="h-full"
           />
         </div>
@@ -270,6 +343,9 @@ export function PromptBuilder({
               <PrefixPanel
                 prefixes={prefixesData}
                 onSelectPrefix={onSelectPrefix}
+                onUpdatePrefix={onUpdatePrefix}
+                onRestoreVersion={onRestorePrefix}
+                onDeprecatePrompt={onDeprecatePrefix}
                 className="h-full"
               />
             </ScrollArea>
@@ -453,6 +529,9 @@ export function PromptBuilder({
               <SuffixPanel
                 suffixes={suffixesData}
                 onSelectSuffix={onSelectSuffix}
+                onUpdateSuffix={onUpdateSuffix}
+                onRestoreVersion={onRestoreSuffix}
+                onDeprecatePrompt={onDeprecateSuffix}
                 className="h-full"
               />
             </ScrollArea>
