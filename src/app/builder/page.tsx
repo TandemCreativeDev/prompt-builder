@@ -5,10 +5,8 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { PromptBuilder } from "@/components/PromptBuilder";
 import {
-  PrefixesData,
-  SuffixesData,
+  PromptsData,
   PhasesConfig,
-  PhasePromptsData,
   PromptFragment,
   HistoryLogEntry,
 } from "@/types/prompts";
@@ -17,27 +15,28 @@ import {
  * Page component for the Prompt Builder
  */
 export default function PromptBuilderPage() {
-  const [prefixesData, setPrefixesData] = useState<PrefixesData>({
-    prefixes: [],
-  });
-  const [suffixesData, setSuffixesData] = useState<SuffixesData>({
-    suffixes: [],
-  });
-  const [phasesConfig, setPhasesConfig] = useState<PhasesConfig>({
-    phases: [],
-  });
+  const [prefixesData, setPrefixesData] = useState<PromptsData>([]);
+  const [suffixesData, setSuffixesData] = useState<PromptsData>([]);
+  const [phasesConfig, setPhasesConfig] = useState<PhasesConfig>([]);
   const [phasePromptsMap, setPhasePromptsMap] = useState<
-    Record<string, PhasePromptsData>
+    Record<string, PromptsData>
   >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // State for selected prompt fragments
-  const [selectedPrefix, setSelectedPrefix] = useState<PromptFragment | null>(
-    null
+  const [selectedPrefixIds, setSelectedPrefixIds] = useState<string[]>([]);
+  const [selectedSuffixIds, setSelectedSuffixIds] = useState<string[]>([]);
+  const [selectedPhasePromptId, setSelectedPhasePromptId] = useState<
+    string | null
+  >(null);
+
+  // We still need to keep track of the actual prompt objects for generating
+  const [selectedPrefixes, setSelectedPrefixes] = useState<PromptFragment[]>(
+    []
   );
-  const [selectedSuffix, setSelectedSuffix] = useState<PromptFragment | null>(
-    null
+  const [selectedSuffixes, setSelectedSuffixes] = useState<PromptFragment[]>(
+    []
   );
   const [selectedPhasePrompt, setSelectedPhasePrompt] =
     useState<PromptFragment | null>(null);
@@ -72,9 +71,9 @@ export default function PromptBuilderPage() {
       setPhasesConfig(phasesData);
 
       // Fetch phase prompts for each phase
-      const phasePromptsMap: Record<string, PhasePromptsData> = {};
+      const phasePromptsMap: Record<string, PromptsData> = {};
       await Promise.all(
-        phasesData.phases.map(async (phase: { id: string | number }) => {
+        phasesData.map(async (phase: { id: string | number }) => {
           const phasePromptResponse = await fetch(
             `/api/prompts/phases/${phase.id}`
           );
@@ -85,7 +84,7 @@ export default function PromptBuilderPage() {
         })
       );
       // Use spread to create a new object reference to ensure React detects the change
-      setPhasePromptsMap({...phasePromptsMap});
+      setPhasePromptsMap({ ...phasePromptsMap });
 
       setLoading(false);
     } catch (err) {
@@ -103,8 +102,18 @@ export default function PromptBuilderPage() {
 
   // Prefix handlers
   const handleSelectPrefix = (prefix: PromptFragment) => {
-    setSelectedPrefix(prefix);
-    toast.info(`Selected prefix: ${prefix.id}`);
+    // Toggle selection
+    if (selectedPrefixIds.includes(prefix.id)) {
+      // Remove from selection
+      setSelectedPrefixIds((prev) => prev.filter((id) => id !== prefix.id));
+      setSelectedPrefixes((prev) => prev.filter((p) => p.id !== prefix.id));
+      toast.info(`Unselected prefix: ${prefix.id}`);
+    } else {
+      // Add to selection
+      setSelectedPrefixIds((prev) => [...prev, prefix.id]);
+      setSelectedPrefixes((prev) => [...prev, prefix]);
+      toast.info(`Selected prefix: ${prefix.id}`);
+    }
   };
 
   const handleUpdatePrefix = async (
@@ -116,28 +125,33 @@ export default function PromptBuilderPage() {
       // If persistChange is false, we just want to update the UI temporarily
       if (!persistChange) {
         // Make a defensive copy of the data first
-        if (!prefixesData?.prefixes) {
+        if (!prefixesData) {
           toast.error("Prefix data is not available");
           return;
         }
-        
+
         // Find and update the prefix in the local state
-        const updatedPrefixes = {
-          prefixes: prefixesData.prefixes.map((prefix) =>
-            prefix.id === prefixId
-              ? { ...prefix, text: newText, length: newText.length }
-              : prefix
-          ),
-        };
+        const updatedPrefixes = prefixesData.map((prefix) =>
+          prefix.id === prefixId
+            ? { ...prefix, text: newText, length: newText.length }
+            : prefix
+        );
         setPrefixesData(updatedPrefixes);
 
         // Update the selected prefix if it's the one being edited
-        if (selectedPrefix && selectedPrefix.id === prefixId) {
-          setSelectedPrefix({
-            ...selectedPrefix,
-            text: newText,
-            length: newText.length,
-          });
+        const selectedPrefix = selectedPrefixes.find((p) => p.id === prefixId);
+        if (selectedPrefix) {
+          setSelectedPrefixes((prev) =>
+            prev.map((p) =>
+              p.id === prefixId
+                ? {
+                    ...p,
+                    text: newText,
+                    length: newText.length,
+                  }
+                : p
+            )
+          );
         }
 
         toast.success("Prefix updated (session only)");
@@ -162,28 +176,28 @@ export default function PromptBuilderPage() {
 
       // Immediately update the local state defensively
       setPrefixesData((prevData) => {
-        if (!prevData?.prefixes) return prevData;
-        
-        return {
-          prefixes: prevData.prefixes.map((prefix) =>
-            prefix.id === prefixId
-              ? { ...prefix, text: newText, length: newText.length }
-              : prefix
-          ),
-        };
+        if (!Array.isArray(prevData)) return prevData;
+
+        return prevData.map((prefix) =>
+          prefix.id === prefixId
+            ? { ...prefix, text: newText, length: newText.length }
+            : prefix
+        );
       });
 
-      // Update the selected prefix if it's the one being edited
-      if (selectedPrefix && selectedPrefix.id === prefixId) {
-        setSelectedPrefix({
-          ...selectedPrefix,
-          text: newText,
-          length: newText.length,
-        });
+      // Update the selected prefixes if the edited one is selected
+      if (selectedPrefixIds.includes(prefixId)) {
+        setSelectedPrefixes((prev) =>
+          prev.map((p) =>
+            p.id === prefixId
+              ? { ...p, text: newText, length: newText.length }
+              : p
+          )
+        );
       }
 
       toast.success("Prefix updated successfully!");
-      
+
       // Schedule a refresh of all data to ensure everything is in sync
       setTimeout(() => {
         fetchAllData();
@@ -222,13 +236,18 @@ export default function PromptBuilderPage() {
       const updatedPrefixesData = await response.json();
       setPrefixesData(updatedPrefixesData);
 
-      // Update the selected prefix if it's the one being restored
-      if (selectedPrefix && selectedPrefix.id === prefixId) {
+      // Update the selected prefixes if the restored one is included
+      const isSelectedPrefix = selectedPrefixes.some(
+        (prefix) => prefix.id === prefixId
+      );
+      if (isSelectedPrefix) {
         const updatedPrefix = updatedPrefixesData.prefixes.find(
           (p: PromptFragment) => p.id === prefixId
         );
         if (updatedPrefix) {
-          setSelectedPrefix(updatedPrefix);
+          setSelectedPrefixes((prev) =>
+            prev.map((p) => (p.id === prefixId ? updatedPrefix : p))
+          );
         }
       }
 
@@ -253,7 +272,7 @@ export default function PromptBuilderPage() {
         },
         body: JSON.stringify({
           promptId: prefixId,
-          promptType: "prefix",
+          filename: "prefixes",
         }),
       });
 
@@ -270,9 +289,10 @@ export default function PromptBuilderPage() {
       const updatedPrefixesData = await prefixesResponse.json();
       setPrefixesData(updatedPrefixesData);
 
-      // Clear the selected prefix if it's the one being deprecated
-      if (selectedPrefix && selectedPrefix.id === prefixId) {
-        setSelectedPrefix(null);
+      // Clear the deprecated prefix from selection if it's selected
+      if (selectedPrefixIds.includes(prefixId)) {
+        setSelectedPrefixIds((prev) => prev.filter((id) => id !== prefixId));
+        setSelectedPrefixes((prev) => prev.filter((p) => p.id !== prefixId));
       }
 
       toast.success("Prefix deprecated successfully!");
@@ -288,8 +308,18 @@ export default function PromptBuilderPage() {
 
   // Suffix handlers
   const handleSelectSuffix = (suffix: PromptFragment) => {
-    setSelectedSuffix(suffix);
-    toast.info(`Selected suffix: ${suffix.id}`);
+    // Toggle selection
+    if (selectedSuffixIds.includes(suffix.id)) {
+      // Remove from selection
+      setSelectedSuffixIds((prev) => prev.filter((id) => id !== suffix.id));
+      setSelectedSuffixes((prev) => prev.filter((s) => s.id !== suffix.id));
+      toast.info(`Unselected suffix: ${suffix.id}`);
+    } else {
+      // Add to selection
+      setSelectedSuffixIds((prev) => [...prev, suffix.id]);
+      setSelectedSuffixes((prev) => [...prev, suffix]);
+      toast.info(`Selected suffix: ${suffix.id}`);
+    }
   };
 
   const handleUpdateSuffix = async (
@@ -301,28 +331,28 @@ export default function PromptBuilderPage() {
       // If persistChange is false, we just want to update the UI temporarily
       if (!persistChange) {
         // Make a defensive copy of the data first
-        if (!suffixesData?.suffixes) {
+        if (!suffixesData) {
           toast.error("Suffix data is not available");
           return;
         }
-        
+
         // Find and update the suffix in the local state
-        const updatedSuffixes = {
-          suffixes: suffixesData.suffixes.map((suffix) =>
-            suffix.id === suffixId
-              ? { ...suffix, text: newText, length: newText.length }
-              : suffix
-          ),
-        };
+        const updatedSuffixes = suffixesData.map((suffix) =>
+          suffix.id === suffixId
+            ? { ...suffix, text: newText, length: newText.length }
+            : suffix
+        );
         setSuffixesData(updatedSuffixes);
 
         // Update the selected suffix if it's the one being edited
-        if (selectedSuffix && selectedSuffix.id === suffixId) {
-          setSelectedSuffix({
-            ...selectedSuffix,
-            text: newText,
-            length: newText.length,
-          });
+        if (selectedSuffixes.some((suffix) => suffix.id === suffixId)) {
+          setSelectedSuffixes((prevSuffixes) =>
+            prevSuffixes.map((suffix) =>
+              suffix.id === suffixId
+                ? { ...suffix, text: newText, length: newText.length }
+                : suffix
+            )
+          );
         }
 
         toast.success("Suffix updated (session only)");
@@ -347,28 +377,28 @@ export default function PromptBuilderPage() {
 
       // Immediately update the local state defensively
       setSuffixesData((prevData) => {
-        if (!prevData?.suffixes) return prevData;
-        
-        return {
-          suffixes: prevData.suffixes.map((suffix) =>
-            suffix.id === suffixId
-              ? { ...suffix, text: newText, length: newText.length }
-              : suffix
-          ),
-        };
+        if (!Array.isArray(prevData)) return prevData;
+
+        return prevData.map((suffix) =>
+          suffix.id === suffixId
+            ? { ...suffix, text: newText, length: newText.length }
+            : suffix
+        );
       });
 
-      // Update the selected suffix if it's the one being edited
-      if (selectedSuffix && selectedSuffix.id === suffixId) {
-        setSelectedSuffix({
-          ...selectedSuffix,
-          text: newText,
-          length: newText.length,
-        });
+      // Update the selected suffixes if the edited one is selected
+      if (selectedSuffixIds.includes(suffixId)) {
+        setSelectedSuffixes((prev) =>
+          prev.map((s) =>
+            s.id === suffixId
+              ? { ...s, text: newText, length: newText.length }
+              : s
+          )
+        );
       }
 
       toast.success("Suffix updated successfully!");
-      
+
       // Schedule a refresh of all data to ensure everything is in sync
       setTimeout(() => {
         fetchAllData();
@@ -405,28 +435,36 @@ export default function PromptBuilderPage() {
 
       // Update local state defensively
       setSuffixesData((prevData) => {
-        if (!prevData?.suffixes) return prevData;
-        
-        return {
-          suffixes: prevData.suffixes.map((suffix) =>
-            suffix.id === suffixId
-              ? { ...suffix, text: historyEntry.text, length: historyEntry.text.length }
-              : suffix
-          ),
-        };
+        if (!Array.isArray(prevData)) return prevData;
+
+        return prevData.map((suffix) =>
+          suffix.id === suffixId
+            ? {
+                ...suffix,
+                text: historyEntry.text,
+                length: historyEntry.text.length,
+              }
+            : suffix
+        );
       });
 
       // Update the selected suffix if it's the one being restored
-      if (selectedSuffix && selectedSuffix.id === suffixId) {
-        setSelectedSuffix({
-          ...selectedSuffix,
-          text: historyEntry.text,
-          length: historyEntry.text.length,
-        });
+      if (selectedSuffixes.some((suffix) => suffix.id === suffixId)) {
+        setSelectedSuffixes((prevSuffixes) =>
+          prevSuffixes.map((suffix) =>
+            suffix.id === suffixId
+              ? {
+                  ...suffix,
+                  text: historyEntry.text,
+                  length: historyEntry.text.length,
+                }
+              : suffix
+          )
+        );
       }
 
       toast.success("Suffix restored to previous version!");
-      
+
       // Schedule a refresh of all data to ensure everything is in sync
       setTimeout(() => {
         fetchAllData();
@@ -451,7 +489,7 @@ export default function PromptBuilderPage() {
         },
         body: JSON.stringify({
           promptId: suffixId,
-          promptType: "suffix",
+          filename: "suffixes",
         }),
       });
 
@@ -468,9 +506,10 @@ export default function PromptBuilderPage() {
       const updatedSuffixesData = await suffixesResponse.json();
       setSuffixesData(updatedSuffixesData);
 
-      // Clear the selected suffix if it's the one being deprecated
-      if (selectedSuffix && selectedSuffix.id === suffixId) {
-        setSelectedSuffix(null);
+      // Clear the deprecated suffix from selection if it's selected
+      if (selectedSuffixIds.includes(suffixId)) {
+        setSelectedSuffixIds((prev) => prev.filter((id) => id !== suffixId));
+        setSelectedSuffixes((prev) => prev.filter((s) => s.id !== suffixId));
       }
 
       toast.success("Suffix deprecated successfully!");
@@ -489,10 +528,20 @@ export default function PromptBuilderPage() {
     phasePrompt: PromptFragment,
     phaseId: string
   ) => {
-    setSelectedPhasePrompt(phasePrompt);
-    toast.info(
-      `Selected phase prompt: ${phasePrompt.id} for phase: ${phaseId}`
-    );
+    // For phase prompts, we use radio-button style selection (only one can be selected)
+    if (selectedPhasePromptId === phasePrompt.id) {
+      // Deselect if already selected
+      setSelectedPhasePromptId(null);
+      setSelectedPhasePrompt(null);
+      toast.info(`Unselected phase prompt: ${phasePrompt.id}`);
+    } else {
+      // Select the new phase prompt (replacing any previously selected one)
+      setSelectedPhasePromptId(phasePrompt.id);
+      setSelectedPhasePrompt(phasePrompt);
+      toast.info(
+        `Selected phase prompt: ${phasePrompt.id} for phase: ${phaseId}`
+      );
+    }
   };
 
   const handleUpdatePhasePrompt = async (
@@ -508,15 +557,13 @@ export default function PromptBuilderPage() {
         const updatedPhasePromptsMap = { ...phasePromptsMap };
 
         // Find the phase and update the prompt - with null checks
-        if (updatedPhasePromptsMap[phaseId] && updatedPhasePromptsMap[phaseId].prompts) {
-          updatedPhasePromptsMap[phaseId] = {
-            ...updatedPhasePromptsMap[phaseId],
-            prompts: updatedPhasePromptsMap[phaseId].prompts.map((prompt) =>
-              prompt.id === promptId
-                ? { ...prompt, text: newText, length: newText.length }
-                : prompt
-            ),
-          };
+        if (updatedPhasePromptsMap[phaseId]) {
+          const updatedPrompts = updatedPhasePromptsMap[phaseId].map((prompt) =>
+            prompt.id === promptId
+              ? { ...prompt, text: newText, length: newText.length }
+              : prompt
+          );
+          updatedPhasePromptsMap[phaseId] = updatedPrompts;
         }
 
         setPhasePromptsMap(updatedPhasePromptsMap);
@@ -552,20 +599,17 @@ export default function PromptBuilderPage() {
 
       // Apply immediate defensive state update
       setPhasePromptsMap((prevMap) => {
-        if (!prevMap || !prevMap[phaseId] || !prevMap[phaseId].prompts) {
+        if (!prevMap || !prevMap[phaseId]) {
           return prevMap;
         }
-        
+
         const updatedMap = { ...prevMap };
-        updatedMap[phaseId] = {
-          ...updatedMap[phaseId],
-          prompts: updatedMap[phaseId].prompts.map((prompt) =>
-            prompt.id === promptId
-              ? { ...prompt, text: newText, length: newText.length }
-              : prompt
-          ),
-        };
-        
+        updatedMap[phaseId] = updatedMap[phaseId].map((prompt) =>
+          prompt.id === promptId
+            ? { ...prompt, text: newText, length: newText.length }
+            : prompt
+        );
+
         return updatedMap;
       });
 
@@ -579,7 +623,7 @@ export default function PromptBuilderPage() {
       }
 
       toast.success("Phase prompt updated successfully!");
-      
+
       // Schedule a refresh of all data to ensure everything is in sync
       setTimeout(() => {
         fetchAllData();
@@ -660,8 +704,7 @@ export default function PromptBuilderPage() {
         },
         body: JSON.stringify({
           promptId: promptId,
-          promptType: "phase",
-          phaseId: phaseId,
+          filename: `phases/${phaseId}`,
         }),
       });
 
@@ -684,7 +727,8 @@ export default function PromptBuilderPage() {
       });
 
       // Clear the selected phase prompt if it's the one being deprecated
-      if (selectedPhasePrompt && selectedPhasePrompt.id === promptId) {
+      if (selectedPhasePromptId === promptId) {
+        setSelectedPhasePromptId(null);
         setSelectedPhasePrompt(null);
       }
 
@@ -700,9 +744,11 @@ export default function PromptBuilderPage() {
       return false;
     }
   };
-  
+
   // Add new handlers for creating prompts
-  const handleCreatePrefix = async (newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">) => {
+  const handleCreatePrefix = async (
+    newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">
+  ) => {
     try {
       const response = await fetch("/api/prompts/prefixes", {
         method: "POST",
@@ -736,7 +782,9 @@ export default function PromptBuilderPage() {
     }
   };
 
-  const handleCreateSuffix = async (newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">) => {
+  const handleCreateSuffix = async (
+    newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">
+  ) => {
     try {
       const response = await fetch("/api/prompts/suffixes", {
         method: "POST",
@@ -818,9 +866,9 @@ export default function PromptBuilderPage() {
 
   const handleGeneratePrompt = async () => {
     // Get text values from selected components
-    const prefixText = selectedPrefix ? selectedPrefix.text : "";
+    const prefixTexts = selectedPrefixes.map((p) => p.text).join("\n\n");
     const phaseText = selectedPhasePrompt ? selectedPhasePrompt.text : "";
-    const suffixText = selectedSuffix ? selectedSuffix.text : "";
+    const suffixTexts = selectedSuffixes.map((s) => s.text).join("\n\n");
 
     try {
       // Make API call to generate prompt and log to history
@@ -831,12 +879,12 @@ export default function PromptBuilderPage() {
         },
         body: JSON.stringify({
           mainText: mainText,
-          prefixText: prefixText,
+          prefixText: prefixTexts,
           phaseText: phaseText,
-          suffixText: suffixText,
-          prefixId: selectedPrefix?.id,
-          suffixId: selectedSuffix?.id,
-          phasePromptId: selectedPhasePrompt?.id,
+          suffixText: suffixTexts,
+          prefixIds: selectedPrefixIds,
+          suffixIds: selectedSuffixIds,
+          phasePromptId: selectedPhasePromptId,
           phaseNumber: selectedPhasePrompt?.phase_id,
         }),
       });
@@ -870,9 +918,9 @@ export default function PromptBuilderPage() {
       toast.loading("Tidying text with AI...");
 
       // Get text values from selected components
-      const prefixText = selectedPrefix ? selectedPrefix.text : "";
+      const prefixTexts = selectedPrefixes.map((p) => p.text).join("\n\n");
       const phaseText = selectedPhasePrompt ? selectedPhasePrompt.text : "";
-      const suffixText = selectedSuffix ? selectedSuffix.text : "";
+      const suffixTexts = selectedSuffixes.map((s) => s.text).join("\n\n");
 
       // Call the OpenAI API via our backend with all prompt components
       const response = await fetch("/api/generate", {
@@ -882,12 +930,12 @@ export default function PromptBuilderPage() {
         },
         body: JSON.stringify({
           mainText: mainText,
-          prefixText: prefixText,
+          prefixText: prefixTexts,
           phaseText: phaseText,
-          suffixText: suffixText,
-          prefixId: selectedPrefix?.id,
-          suffixId: selectedSuffix?.id,
-          phasePromptId: selectedPhasePrompt?.id,
+          suffixText: suffixTexts,
+          prefixIds: selectedPrefixIds,
+          suffixIds: selectedSuffixIds,
+          phasePromptId: selectedPhasePromptId,
           phaseNumber: selectedPhasePrompt?.phase_id,
         }),
       });
@@ -961,15 +1009,18 @@ export default function PromptBuilderPage() {
 
       <div className="h-[calc(100vh-150px)]">
         <PromptBuilder
-          prefixesData={prefixesData}
-          suffixesData={suffixesData}
+          prefixData={prefixesData}
+          suffixData={suffixesData}
           phasesConfig={phasesConfig}
           phasePromptsMap={phasePromptsMap}
           onSelectPrefix={handleSelectPrefix}
           onSelectSuffix={handleSelectSuffix}
           onSelectPhasePrompt={handleSelectPhasePrompt}
-          selectedPrefix={selectedPrefix}
-          selectedSuffix={selectedSuffix}
+          selectedPrefixIds={selectedPrefixIds}
+          selectedSuffixIds={selectedSuffixIds}
+          selectedPhasePromptId={selectedPhasePromptId}
+          selectedPrefixes={selectedPrefixes}
+          selectedSuffixes={selectedSuffixes}
           selectedPhasePrompt={selectedPhasePrompt}
           mainText={mainText}
           onMainTextChange={handleMainTextChange}
