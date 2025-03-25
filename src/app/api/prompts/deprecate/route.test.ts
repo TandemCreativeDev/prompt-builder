@@ -25,7 +25,7 @@ describe("/api/prompts/deprecated", () => {
     it("should deprecate a prompt and return status 200 on success", async () => {
       const requestBody = {
         promptId: "123",
-        promptType: "prefix",
+        filename: "prefixes",
       };
 
       const request = {
@@ -36,11 +36,11 @@ describe("/api/prompts/deprecated", () => {
       const data = await response.json();
 
       expect(request.json).toHaveBeenCalled();
-      expect(deprecatePrompt).toHaveBeenCalledWith("123", "prefix", undefined);
+      expect(deprecatePrompt).toHaveBeenCalledWith("123", "prefixes");
       expect(response.status).toBe(200);
       expect(data).toHaveProperty(
         "message",
-        "Successfully deprecated prefix prompt: 123"
+        "Successfully deprecated prefixes prompt: 123"
       );
     });
 
@@ -74,25 +74,7 @@ describe("/api/prompts/deprecated", () => {
       expect(response.status).toBe(400);
       expect(data).toHaveProperty(
         "error",
-        "Invalid promptType. Must be one of: prefix, suffix, phase"
-      );
-    });
-
-    it("should return error with status 400 if phaseId is missing for phase prompts", async () => {
-      const request = {
-        json: jest
-          .fn()
-          .mockResolvedValue({ promptId: "123", promptType: "phase" }),
-      } as unknown as Request;
-
-      const response = await POST(request);
-      const data = await response.json();
-
-      expect(request.json).toHaveBeenCalled();
-      expect(response.status).toBe(400);
-      expect(data).toHaveProperty(
-        "error",
-        "Missing required parameter: phaseId (required for phase prompts)"
+        "Missing required parameters: promptId and promptType"
       );
     });
 
@@ -102,7 +84,7 @@ describe("/api/prompts/deprecated", () => {
       const request = {
         json: jest
           .fn()
-          .mockResolvedValue({ promptId: "123", promptType: "prefix" }),
+          .mockResolvedValue({ promptId: "123", filename: "prefixes" }),
       } as unknown as Request;
 
       const response = await POST(request);
