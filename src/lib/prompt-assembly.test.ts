@@ -59,10 +59,8 @@ describe("Prompt Assembly Functions", () => {
 
   describe("logGeneratedPrompt", () => {
     it("should create a history entry and add it to history", async () => {
-      // Mock the necessary functions
-      const mockHistoryData = {
-        entries: [{ id: "existing-entry" }],
-      };
+      // Mock the necessary functions - return an array directly instead of an object with entries
+      const mockHistoryData = [{ id: "existing-entry" }];
 
       (historyIO.readHistory as jest.Mock).mockResolvedValue(mockHistoryData);
       (idGenerator.generateHistoryId as jest.Mock).mockReturnValue(
@@ -76,8 +74,8 @@ describe("Prompt Assembly Functions", () => {
       const result = await logGeneratedPrompt(
         "User text",
         "AI refined text",
-        "prefix-id",
-        "suffix-id",
+        ["prefix-id"],
+        ["suffix-id"],
         "phase-prompt-id",
         "5"
       );
@@ -88,33 +86,31 @@ describe("Prompt Assembly Functions", () => {
         timestamp: "2023-01-01T12:00:00.000Z",
         user_text: "User text",
         ai_refined_text: "AI refined text",
-        prefix_id: "prefix-id",
-        suffix_id: "suffix-id",
+        prefix_ids: ["prefix-id"],
+        suffix_ids: ["suffix-id"],
         phase_prompt_id: "phase-prompt-id",
         phase_number: "5",
       });
 
-      // Verify writeHistory was called with the right data
-      expect(historyIO.writeHistory).toHaveBeenCalledWith({
-        entries: [
-          { id: "existing-entry" },
-          {
-            id: "new-history-id",
-            timestamp: "2023-01-01T12:00:00.000Z",
-            user_text: "User text",
-            ai_refined_text: "AI refined text",
-            prefix_id: "prefix-id",
-            suffix_id: "suffix-id",
-            phase_prompt_id: "phase-prompt-id",
-            phase_number: "5",
-          },
-        ],
-      });
+      // Verify writeHistory was called with the right data - an array, not an object with entries
+      expect(historyIO.writeHistory).toHaveBeenCalledWith([
+        { id: "existing-entry" },
+        {
+          id: "new-history-id",
+          timestamp: "2023-01-01T12:00:00.000Z",
+          user_text: "User text",
+          ai_refined_text: "AI refined text",
+          prefix_ids: ["prefix-id"],
+          suffix_ids: ["suffix-id"],
+          phase_prompt_id: "phase-prompt-id",
+          phase_number: "5",
+        },
+      ]);
     });
 
     it("should handle optional parameters", async () => {
-      // Mock the necessary functions
-      (historyIO.readHistory as jest.Mock).mockResolvedValue({ entries: [] });
+      // Mock the necessary functions - return an empty array
+      (historyIO.readHistory as jest.Mock).mockResolvedValue([]);
       (idGenerator.generateHistoryId as jest.Mock).mockReturnValue(
         "new-history-id"
       );
@@ -139,16 +135,14 @@ describe("Prompt Assembly Functions", () => {
         user_text: "User text only",
       });
 
-      // Verify writeHistory was called with the right data
-      expect(historyIO.writeHistory).toHaveBeenCalledWith({
-        entries: [
-          {
-            id: "new-history-id",
-            timestamp: fixedISOString,
-            user_text: "User text only",
-          },
-        ],
-      });
+      // Verify writeHistory was called with the right data - an array
+      expect(historyIO.writeHistory).toHaveBeenCalledWith([
+        {
+          id: "new-history-id",
+          timestamp: fixedISOString,
+          user_text: "User text only",
+        },
+      ]);
     });
   });
 });
