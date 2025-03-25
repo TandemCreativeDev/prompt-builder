@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readPrefixes, addPrefix, updatePrefix } from "@/lib/prompts-io";
+import { readPrompts, addPrompt, updatePrompt } from "@/lib/prompts-io";
 import { PromptFragment } from "@/types/prompts";
 import { generatePromptId } from "@/lib/id-generator";
 
@@ -9,7 +9,7 @@ import { generatePromptId } from "@/lib/id-generator";
  */
 export async function GET() {
   try {
-    const data = await readPrefixes();
+    const data = await readPrompts("prefixes");
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("Error reading prefixes:", error);
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     };
 
     // Add the prefix and return the updated data
-    await addPrefix(prefix);
+    await addPrompt("prefixes", prefix);
     return NextResponse.json(prefix, { status: 201 });
   } catch (error) {
     console.error("Error adding prefix:", error);
@@ -67,7 +67,7 @@ export async function PUT(request: Request) {
     prefix.length = prefix.text.length;
 
     // Update the prefix and return the updated data
-    await updatePrefix(prefix);
+    await updatePrompt("prefixes", prefix);
     return NextResponse.json(prefix, { status: 200 });
   } catch (error) {
     console.error("Error updating prefix:", error);
