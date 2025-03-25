@@ -330,10 +330,14 @@ export function PromptBuilder({
       {/* Top half - Phase Prompt Panel */}
       <div
         className={`grid ${
-          showGenerated ? "grid-cols-2 gap-4" : "grid-cols-1"
+          showGenerated ? "grid-cols-3 gap-4" : "grid-cols-1"
         }`}
       >
-        <div className="h-[40vh] w-full overflow-hidden">
+        <div
+          className={`${
+            showGenerated ? "col-span-2" : "col-span-1"
+          } h-[40vh] w-full overflow-hidden`}
+        >
           <PhasePromptPanel
             phasesConfig={phasesConfig}
             phasePromptsMap={phasePromptsMap}
@@ -343,12 +347,12 @@ export function PromptBuilder({
             onDeprecatePrompt={onDeprecatePhasePrompt}
             onCreatePrompt={onCreatePhasePrompt}
             selectedPhasePromptId={selectedPhasePromptId ?? undefined}
-            className="h-full overflow-auto"
+            className="h-full"
           />
         </div>
 
         {showGenerated && (
-          <Card className="h-full row-span-1">
+          <Card className="h-full col-span-1 row-span-1">
             <CardContent className="p-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Generated Prompt</h3>
