@@ -8,7 +8,9 @@ export default function Home() {
           AI-Assisted Prompt Repository & Generator
         </h1>
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-full mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Welcome to Prompt Builder</h2>
+          <h2 className="text-2xl font-semibold mb-4">
+            Welcome to Prompt Builder
+          </h2>
           <p className="text-gray-700 dark:text-gray-300 mb-4">
             A tool for creating, managing, and tracking AI prompts.
           </p>
@@ -23,17 +25,11 @@ export default function Home() {
           </ul>
         </div>
         <div className="flex gap-6">
-          <Link 
+          <Link
             href="/builder"
             className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 font-medium"
           >
             Prompt Builder
-          </Link>
-          <Link
-            href="/store"
-            className="px-6 py-3 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 font-medium"
-          >
-            Prompt Store
           </Link>
           <Link
             href="/api-docs"
