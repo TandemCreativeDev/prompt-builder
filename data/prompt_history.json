@@ -1,11 +1,9 @@
-{
-  "entries": [
-    {
-      "id": "hist_8f70e587",
-      "timestamp": "2025-03-25T15:38:35.303Z",
-      "user_text": "helo",
-      "ai_refined_text": "Hello",
-      "phase_prompt_id": "AD-P1-001"
-    }
-  ]
-}
+[
+  {
+    "id": "hist_8f70e587",
+    "timestamp": "2025-03-25T15:38:35.303Z",
+    "user_text": "helo",
+    "ai_refined_text": "Hello",
+    "phase_prompt_id": "AD-P1-001"
+  }
+]
