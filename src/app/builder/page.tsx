@@ -864,65 +864,28 @@ export default function PromptBuilderPage() {
     setMainText(text);
   };
 
-  const handleGeneratePrompt = async () => {
-    // Get text values from selected components
-    const prefixTexts = selectedPrefixes.map((p) => p.text).join("\n\n");
-    const phaseText = selectedPhasePrompt ? selectedPhasePrompt.text : "";
-    const suffixTexts = selectedSuffixes.map((s) => s.text).join("\n\n");
-
-    try {
-      // Make API call to generate prompt and log to history
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          mainText: mainText,
-          prefixText: prefixTexts,
-          phaseText: phaseText,
-          suffixText: suffixTexts,
-          prefixIds: selectedPrefixIds,
-          suffixIds: selectedSuffixIds,
-          phasePromptId: selectedPhasePromptId,
-          phaseNumber: selectedPhasePrompt?.phase_id,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate prompt");
-      }
-
-      const data = await response.json();
-
-      // Use the assembled prompt from the API response
-      setGeneratedPrompt(data.assembledPrompt);
-      toast.success("Prompt generated and logged to history!");
-    } catch (error) {
-      console.error("Error generating prompt:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to generate prompt"
-      );
-    }
-  };
-
-  const handleTidyAndGenerate = async () => {
+  const handleGeneratePrompt = async (tidy = false) => {
+    // Validation check for main text
     if (!mainText || mainText.trim() === "") {
-      toast.error("Please enter some text to tidy");
+      toast.error(
+        `Please enter some text to ${
+          tidy ? "tidy" : "generate a unique prompt"
+        }`
+      );
       return;
     }
 
     try {
-      // Show loading toast
-      toast.loading("Tidying text with AI...");
+      if (tidy) {
+        toast.loading("Processing with AI...");
+      }
 
-      // Get text values from selected components
+      // Common preparation - gather all prompt components
       const prefixTexts = selectedPrefixes.map((p) => p.text).join("\n\n");
       const phaseText = selectedPhasePrompt ? selectedPhasePrompt.text : "";
       const suffixTexts = selectedSuffixes.map((s) => s.text).join("\n\n");
 
-      // Call the OpenAI API via our backend with all prompt components
+      // Call the API with the tidy flag to determine behavior
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: {
@@ -930,6 +893,7 @@ export default function PromptBuilderPage() {
         },
         body: JSON.stringify({
           mainText: mainText,
+          tidy: tidy,
           prefixText: prefixTexts,
           phaseText: phaseText,
           suffixText: suffixTexts,
@@ -942,22 +906,26 @@ export default function PromptBuilderPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to tidy text with AI");
+        throw new Error(errorData.error || "Failed to process request");
       }
 
       const data = await response.json();
 
-      // Update the main text with the refined version
-      setMainText(data.refinedText);
+      // If AI tidying was used, update the main text with the refined version
+      if (tidy) {
+        setMainText(data.refinedText);
+      }
 
       // Set the generated prompt from the assembled prompt in the response
       setGeneratedPrompt(data.assembledPrompt);
 
-      toast.success("Text tidied and prompt generated successfully!");
+      if (tidy) {
+        toast.success("Text tidied and prompt generated successfully!");
+      }
     } catch (error) {
-      console.error("Error tidying text:", error);
+      console.error("Error generating prompt:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to tidy text with AI"
+        error instanceof Error ? error.message : "Failed to generate prompt"
       );
     } finally {
       toast.dismiss();
@@ -1026,8 +994,6 @@ export default function PromptBuilderPage() {
           onMainTextChange={handleMainTextChange}
           generatedPrompt={generatedPrompt}
           onGenerate={handleGeneratePrompt}
-          onTidyAndGenerate={handleTidyAndGenerate}
-          // Add new handlers for updating and deprecating
           onUpdatePrefix={handleUpdatePrefix}
           onUpdateSuffix={handleUpdateSuffix}
           onUpdatePhasePrompt={handleUpdatePhasePrompt}
