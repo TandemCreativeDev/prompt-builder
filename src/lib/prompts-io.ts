@@ -2,9 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import {
   PromptFragment,
-  PrefixesData,
-  SuffixesData,
-  PhasePromptsData,
+  PromptsData,
   PhasesConfig,
   HistoryLogEntry,
 } from "../types/prompts";
@@ -17,25 +15,12 @@ const DATA_DIR = path.join(process.cwd(), "data");
 /**
  * Paths to the various JSON files
  */
-const PREFIXES_FILE_PATH = path.join(DATA_DIR, "prefixes.json");
-const SUFFIXES_FILE_PATH = path.join(DATA_DIR, "suffixes.json");
 const PHASES_FILE_PATH = path.join(DATA_DIR, "phases.json");
-const PHASES_DIR = path.join(DATA_DIR, "phases");
 
 /**
  * Default empty data structures
  */
-export const DEFAULT_PREFIXES_DATA: PrefixesData = {
-  prefixes: [],
-};
-
-export const DEFAULT_SUFFIXES_DATA: SuffixesData = {
-  suffixes: [],
-};
-
-export const DEFAULT_PHASE_PROMPTS_DATA: PhasePromptsData = {
-  prompts: [],
-};
+export const DEFAULT_PROMPTS_DATA: PromptsData = [];
 
 /**
  * Generic function to read JSON data from a file
@@ -131,7 +116,7 @@ function updatePromptFragment(
  * @returns Promise resolving to the phases configuration
  */
 export async function readPhasesConfig(): Promise<PhasesConfig> {
-  return readJsonFile<PhasesConfig>(PHASES_FILE_PATH, { phases: [] });
+  return readJsonFile<PhasesConfig>(PHASES_FILE_PATH, []);
 }
 
 /**
@@ -145,192 +130,75 @@ export async function writePhasesConfig(data: PhasesConfig): Promise<void> {
 }
 
 /**
- * Reads prefix prompts from the prefixes.json file
+ * Reads prompts from the corresponding type json file
  * Creates default data if the file doesn't exist
  *
- * @returns Promise resolving to the prefixes data
+ * @param filename The prompt filename
+ * @returns Promise resolving to the prompts data
  */
-export async function readPrefixes(): Promise<PrefixesData> {
-  return readJsonFile<PrefixesData>(PREFIXES_FILE_PATH, DEFAULT_PREFIXES_DATA);
-}
-
-/**
- * Writes prefix prompts to the prefixes.json file
- *
- * @param data The prefixes data to write
- * @returns Promise that resolves when the write operation is complete
- */
-export async function writePrefixes(data: PrefixesData): Promise<void> {
-  return writeJsonFile<PrefixesData>(PREFIXES_FILE_PATH, data);
-}
-
-/**
- * Adds a new prefix prompt to the prefixes.json file
- *
- * @param prefix The prefix prompt to add
- * @returns Promise resolving to the updated prefixes data
- */
-export async function addPrefix(prefix: PromptFragment): Promise<PrefixesData> {
-  const prefixes = await readPrefixes();
-  prefixes.prefixes.push(prefix);
-  await writePrefixes(prefixes);
-  return prefixes;
-}
-
-/**
- * Updates an existing prefix prompt in the prefixes.json file
- *
- * @param prefix The updated prefix prompt
- * @returns Promise resolving to the updated prefixes data
- */
-export async function updatePrefix(
-  prefix: Partial<PromptFragment>
-): Promise<PrefixesData> {
-  const prefixes = await readPrefixes();
-  const index = prefixes.prefixes.findIndex((p) => p.id === prefix.id);
-
-  if (index === -1) {
-    throw new Error(`Prefix with id ${prefix.id} not found`);
-  }
-
-  prefixes.prefixes[index] = updatePromptFragment(
-    prefixes.prefixes[index],
-    prefix
+export async function readPrompts(filename: string): Promise<PromptsData> {
+  return readJsonFile<PromptsData>(
+    path.join(DATA_DIR, `${filename}.json`),
+    DEFAULT_PROMPTS_DATA
   );
-
-  await writePrefixes(prefixes);
-  return prefixes;
 }
 
 /**
- * Reads suffix prompts from the suffixes.json file
- * Creates default data if the file doesn't exist
+ * Writes prompts to the corresponding type json file
  *
- * @returns Promise resolving to the suffixes data
- */
-export async function readSuffixes(): Promise<SuffixesData> {
-  return readJsonFile<SuffixesData>(SUFFIXES_FILE_PATH, DEFAULT_SUFFIXES_DATA);
-}
-
-/**
- * Writes suffix prompts to the suffixes.json file
- *
- * @param data The suffixes data to write
+ * @param filename The prompt filename
+ * @param data The prompts data to write
  * @returns Promise that resolves when the write operation is complete
  */
-export async function writeSuffixes(data: SuffixesData): Promise<void> {
-  return writeJsonFile<SuffixesData>(SUFFIXES_FILE_PATH, data);
-}
-
-/**
- * Adds a new suffix prompt to the suffixes.json file
- *
- * @param suffix The suffix prompt to add
- * @returns Promise resolving to the updated suffixes data
- */
-export async function addSuffix(suffix: PromptFragment): Promise<SuffixesData> {
-  const suffixes = await readSuffixes();
-  suffixes.suffixes.push(suffix);
-  await writeSuffixes(suffixes);
-  return suffixes;
-}
-
-/**
- * Updates an existing suffix prompt in the suffixes.json file
- *
- * @param suffix The updated suffix prompt
- * @returns Promise resolving to the updated suffixes data
- */
-export async function updateSuffix(
-  suffix: Partial<PromptFragment>
-): Promise<SuffixesData> {
-  const suffixes = await readSuffixes();
-  const index = suffixes.suffixes.findIndex((s) => s.id === suffix.id);
-
-  if (index === -1) throw new Error(`Suffix with id ${suffix.id} not found`);
-
-  suffixes.suffixes[index] = updatePromptFragment(
-    suffixes.suffixes[index],
-    suffix
-  );
-
-  await writeSuffixes(suffixes);
-  return suffixes;
-}
-
-/**
- * Reads phase prompts for a specific phase
- * Creates default data if the file doesn't exist
- *
- * @param phaseId The phase ID
- * @returns Promise resolving to the phase prompts data
- */
-export async function readPhasePrompts(
-  phaseId: string
-): Promise<PhasePromptsData> {
-  const filePath = path.join(PHASES_DIR, `${phaseId}.json`);
-  return readJsonFile<PhasePromptsData>(filePath, DEFAULT_PHASE_PROMPTS_DATA);
-}
-
-/**
- * Writes phase prompts for a specific phase
- *
- * @param phaseId The phase ID
- * @param data The phase prompts data to write
- * @returns Promise that resolves when the write operation is complete
- */
-export async function writePhasePrompts(
-  phaseId: string,
-  data: PhasePromptsData
+export async function writePrompts(
+  filename: string,
+  data: PromptsData
 ): Promise<void> {
-  const filePath = path.join(PHASES_DIR, `${phaseId}.json`);
-  return writeJsonFile<PhasePromptsData>(filePath, data);
+  return writeJsonFile<PromptsData>(
+    path.join(DATA_DIR, `${filename}.json`),
+    data
+  );
 }
 
 /**
- * Adds a new prompt to a specific phase
+ * Adds a new prompt to the corresponding type json file
  *
- * @param phaseId The phase ID
+ * @param filename The prompt filename
  * @param prompt The prompt to add
- * @returns Promise resolving to the updated phase prompts data
+ * @returns Promise resolving to the updated prompt data
  */
-export async function addPhasePrompt(
-  phaseId: string,
+export async function addPrompt(
+  filename: string,
   prompt: PromptFragment
-): Promise<PhasePromptsData> {
-  const phasePrompts = await readPhasePrompts(phaseId);
-  phasePrompts.prompts.push(prompt);
-  await writePhasePrompts(phaseId, phasePrompts);
-  return phasePrompts;
+): Promise<PromptsData> {
+  const prompts = await readPrompts(filename);
+  prompts.push(prompt);
+  await writePrompts(filename, prompts);
+  return prompts;
 }
 
 /**
- * Updates an existing prompt in a specific phase
+ * Updates an existing prompt in the corresponding type json file
  *
- * @param phaseId The phase ID
+ * @param filename The prompt filename
  * @param prompt The updated prompt
- * @returns Promise resolving to the updated phase prompts data
+ * @returns Promise resolving to the updated prompt data
  */
-export async function updatePhasePrompt(
-  phaseId: string,
+export async function updatePrompt(
+  filename: string,
   prompt: Partial<PromptFragment>
-): Promise<PhasePromptsData> {
-  const phasePrompts = await readPhasePrompts(phaseId);
-  const index = phasePrompts.prompts.findIndex((p) => p.id === prompt.id);
+): Promise<PromptsData> {
+  const prompts = await readPrompts(filename);
+  const index = prompts.findIndex((p) => p.id === prompt.id);
 
   if (index === -1) {
-    throw new Error(
-      `Prompt with id ${prompt.id} not found in phase ${phaseId}`
-    );
+    throw new Error(`Prefix with id ${prompt.id} not found`);
   }
 
-  phasePrompts.prompts[index] = updatePromptFragment(
-    phasePrompts.prompts[index],
-    prompt
-  );
+  prompts[index] = updatePromptFragment(prompts[index], prompt);
 
-  await writePhasePrompts(phaseId, phasePrompts);
-  return phasePrompts;
+  await writePrompts(filename, prompts);
+  return prompts;
 }
 
 /**
@@ -338,33 +206,18 @@ export async function updatePhasePrompt(
  * Works with prefixes, suffixes, and phase prompts
  *
  * @param promptId The ID of the prompt to deprecate
- * @param promptType The type of prompt ('prefix', 'suffix', or 'phase')
- * @param phaseId Optional phase ID, required when promptType is 'phase'
+ * @param filename The prompt filename
  * @returns Promise resolving to true if successful
  */
 export async function deprecatePrompt(
   promptId: string,
-  promptType: "prefix" | "suffix" | "phase",
-  phaseId?: string
+  filename: string
 ): Promise<boolean> {
   try {
-    switch (promptType) {
-      case "prefix":
-        await updatePrefix({ id: promptId, deprecated: true });
-        break;
-      case "suffix":
-        await updateSuffix({ id: promptId, deprecated: true });
-        break;
-      case "phase":
-        if (!phaseId) throw new Error("Phase ID is required for phase prompts");
-        await updatePhasePrompt(phaseId, { id: promptId, deprecated: true });
-        break;
-      default:
-        throw new Error(`Invalid prompt type: ${promptType}`);
-    }
+    await updatePrompt(filename, { id: promptId, deprecated: true });
     return true;
   } catch (error) {
-    console.error(`Error deprecating ${promptType} prompt:`, error);
+    console.error(`Error deprecating ${filename} prompt:`, error);
     throw error;
   }
 }
