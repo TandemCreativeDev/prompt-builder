@@ -54,6 +54,14 @@ export interface PromptItemProps {
    * Event handler for when the prompt is deprecated (soft delete)
    */
   onDeprecate?: (promptId: string) => Promise<boolean> | void;
+  /**
+   * Whether the prompt is currently selected
+   */
+  isSelected?: boolean;
+  /**
+   * Whether the selection should behave like a radio button (single selection)
+   */
+  selectionMode?: 'multiple' | 'single';
 }
 
 /**
@@ -67,6 +75,8 @@ export function PromptItem({
   onUpdate,
   onRestoreVersion,
   onDeprecate,
+  isSelected = false,
+  selectionMode = 'multiple',
 }: PromptItemProps): JSX.Element {
   const [isEditing, setIsEditing] = React.useState(false);
   const [editText, setEditText] = React.useState(prompt.text);
@@ -163,15 +173,19 @@ export function PromptItem({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="default"
+                    variant={isSelected ? "secondary" : "default"}
                     size="icon"
                     onClick={handleSelect}
                     className="h-8 w-8"
                   >
-                    <PlusIcon className="h-4 w-4" />
+                    {isSelected ? (
+                      <CheckIcon className="h-4 w-4" />
+                    ) : (
+                      selectionMode === 'multiple' ? <PlusIcon className="h-4 w-4" /> : <CircleIcon className="h-4 w-4" />
+                    )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Select prompt</TooltipContent>
+                <TooltipContent>{isSelected ? "Unselect prompt" : "Select prompt"}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
 
@@ -405,6 +419,44 @@ function TrashIcon(props: React.SVGProps<SVGSVGElement>) {
       <path d="M3 6h18" />
       <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
       <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    </svg>
+  );
+}
+
+function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  );
+}
+
+function CircleIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
     </svg>
   );
 }
