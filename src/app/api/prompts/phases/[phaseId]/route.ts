@@ -1,9 +1,5 @@
 import { NextResponse } from "next/server";
-import {
-  readPhasePrompts,
-  addPhasePrompt,
-  updatePhasePrompt,
-} from "@/lib/prompts-io";
+import { readPrompts, addPrompt, updatePrompt } from "@/lib/prompts-io";
 import { PromptFragment } from "@/types/prompts";
 import { generatePhasePromptId } from "@/lib/id-generator";
 
@@ -17,7 +13,7 @@ export async function GET(
 ) {
   try {
     const { phaseId } = params;
-    const data = await readPhasePrompts(phaseId);
+    const data = await readPrompts(`/phases/${phaseId}`);
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error(`Error reading phase ${params.phaseId} prompts:`, error);
@@ -64,7 +60,7 @@ export async function POST(
     };
 
     // Add the prompt and return the updated data
-    await addPhasePrompt(phaseId, prompt);
+    await addPrompt(`/phases/${phaseId}`, prompt);
     return NextResponse.json(prompt, { status: 201 });
   } catch (error) {
     console.error(`Error adding prompt to phase ${params.phaseId}:`, error);
@@ -93,7 +89,7 @@ export async function PUT(
     prompt.length = prompt.text.length;
 
     // Update the prompt and return the updated data
-    await updatePhasePrompt(phaseId, prompt);
+    await updatePrompt(`/phases/${phaseId}`, prompt);
     return NextResponse.json(prompt, { status: 200 });
   } catch (error) {
     console.error(`Error updating prompt in phase ${params.phaseId}:`, error);
