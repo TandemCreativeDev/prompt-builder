@@ -7,60 +7,75 @@ import { PromptsData, PromptFragment, HistoryLogEntry } from "@/types/prompts";
 import { PromptItem } from "./PromptItem";
 
 /**
- * Props for the PromptPanel component
+ * Base props for prompt panels
  */
-export interface PromptProps {
-  /**
-   * The type of prompt being displayed
-   */
-  type: string;
+export interface BasePromptPanelProps {
   /**
    * The prompt data to display
    */
   prompts: PromptsData;
   /**
-   * Event handler for when a Prompt is selected
+   * Event handler for when a prompt is selected
    */
-  onSelectPrompt?: (Prompt: PromptFragment) => void;
+  onSelectPrompt?: (prompt: PromptFragment) => void;
   /**
-   * Event handler for when a Prompt is updated
+   * Event handler for when a prompt is updated
    */
   onUpdatePrompt?: (
-    PromptId: string,
+    promptId: string,
     newText: string,
     persistChange: boolean
   ) => void;
   /**
    * Event handler for when a historical version is restored
    */
-  onRestoreVersion?: (PromptId: string, historyEntry: HistoryLogEntry) => void;
+  onRestoreVersion?: (promptId: string, historyEntry: HistoryLogEntry) => void;
   /**
-   * Event handler for when a Prompt is deprecated (soft delete)
+   * Event handler for when a prompt is deprecated (soft delete)
    */
-  onDeprecatePrompt?: (PromptId: string) => Promise<boolean>;
+  onDeprecatePrompt?: (promptId: string) => Promise<boolean>;
   /**
-   * Event handler for creating a new Prompt
+   * Event handler for creating a new prompt
    */
   onCreatePrompt?: (
     newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">
   ) => Promise<boolean>;
   /**
-   * Array of selected Prompt IDs
+   * Array of selected prompt IDs
    */
   selectedPromptIds?: string[];
   /**
    * Optional CSS class name for styling
    */
   className?: string;
+  /**
+   * Panel title
+   */
+  title?: string;
+  /**
+   * The selection mode for prompt items
+   */
+  selectionMode?: "single" | "multiple";
 }
 
 /**
- * Component that displays a list of Prompt prompts with filtering and editing capabilities
+ * Props for the PromptPanel component
+ */
+export interface PromptPanelProps extends BasePromptPanelProps {
+  /**
+   * The type of prompt being displayed (used for title if not provided)
+   */
+  type: string;
+}
+
+/**
+ * Component that displays a list of prompt fragments with filtering and editing capabilities
  * @param props - Component props
  * @returns JSX.Element
  */
 export function PromptPanel({
   type,
+  title,
   prompts,
   onSelectPrompt,
   onUpdatePrompt,
@@ -69,7 +84,8 @@ export function PromptPanel({
   onCreatePrompt,
   selectedPromptIds = [],
   className,
-}: PromptProps): JSX.Element {
+  selectionMode = "multiple",
+}: PromptPanelProps): JSX.Element {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
   const [isCreating, setIsCreating] = React.useState(false);
@@ -77,7 +93,7 @@ export function PromptPanel({
   const [newPromptTags, setNewPromptTags] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  // Extract all unique tags from Promptes
+  // Extract all unique tags from prompts
   const allTags = React.useMemo(() => {
     const tagsSet = new Set<string>();
     if (prompts) {
@@ -88,7 +104,7 @@ export function PromptPanel({
     return Array.from(tagsSet);
   }, [prompts]);
 
-  // Filter Promptes based on search term and selected tags
+  // Filter prompts based on search term and selected tags
   const filteredPrompts = React.useMemo(() => {
     if (!prompts) return [];
 
@@ -145,11 +161,13 @@ export function PromptPanel({
         setIsCreating(false);
       }
     } catch (error) {
-      console.error("Error creating Prompt:", error);
+      console.error("Error creating prompt:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const displayTitle = title || `${type} Prompts`;
 
   return (
     <div
@@ -158,7 +176,7 @@ export function PromptPanel({
       }`}
     >
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">{`${type} Prompts`}</h2>
+        <h2 className="text-xl font-bold">{displayTitle}</h2>
         {onCreatePrompt && !isCreating && (
           <Button
             size="sm"
@@ -181,7 +199,7 @@ export function PromptPanel({
                 value={newPromptText}
                 onChange={(e) => setNewPromptText(e.target.value)}
                 disabled={isSubmitting}
-                placeholder="Enter the Prompt prompt text..."
+                placeholder={`Enter the ${type} prompt text...`}
               />
             </div>
             <div>
@@ -219,7 +237,7 @@ export function PromptPanel({
 
       <div className="mb-4">
         <Input
-          placeholder="Search Promptes..."
+          placeholder={`Search ${type} prompts...`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="mb-2"
@@ -258,7 +276,7 @@ export function PromptPanel({
                 onRestoreVersion={onRestoreVersion}
                 onDeprecate={onDeprecatePrompt}
                 isSelected={selectedPromptIds.includes(prompt.id)}
-                selectionMode="multiple"
+                selectionMode={selectionMode}
               />
             ))
           )}
