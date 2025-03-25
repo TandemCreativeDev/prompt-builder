@@ -1,10 +1,5 @@
 import { promises as fs } from "fs";
-import {
-  updatePrefix,
-  updateSuffix,
-  updatePhasePrompt,
-  readPhasesConfig,
-} from "./prompts-io";
+import { updatePrompt, readPhasesConfig } from "./prompts-io";
 import { PromptFragment } from "@/types/prompts";
 
 // Mock the fs module
@@ -50,35 +45,33 @@ describe("Prompts I/O Utilities", () => {
     });
 
     it("should throw an error when updating a non-existent prefix", async () => {
-      (fs.readFile as jest.Mock).mockResolvedValue(
-        JSON.stringify({ prefixes: [] })
-      );
+      (fs.readFile as jest.Mock).mockResolvedValue(JSON.stringify([]));
 
-      await expect(updatePrefix(mockPromptFragment)).rejects.toThrow(
-        `Prefix with id ${mockPromptFragment.id} not found`
+      await expect(
+        updatePrompt("prefixes", mockPromptFragment)
+      ).rejects.toThrow(
+        `prefixes prompt with id ${mockPromptFragment.id} not found`
       );
     });
 
     it("should throw an error when updating a non-existent suffix", async () => {
-      (fs.readFile as jest.Mock).mockResolvedValue(
-        JSON.stringify({ suffixes: [] })
-      );
+      (fs.readFile as jest.Mock).mockResolvedValue(JSON.stringify([]));
 
-      await expect(updateSuffix(mockPromptFragment)).rejects.toThrow(
-        `Suffix with id ${mockPromptFragment.id} not found`
+      await expect(
+        updatePrompt("suffixes", mockPromptFragment)
+      ).rejects.toThrow(
+        `suffixes prompt with id ${mockPromptFragment.id} not found`
       );
     });
 
     it("should throw an error when updating a non-existent phase prompt", async () => {
       const phaseId = "1";
-      (fs.readFile as jest.Mock).mockResolvedValue(
-        JSON.stringify({ prompts: [] })
-      );
+      (fs.readFile as jest.Mock).mockResolvedValue(JSON.stringify([]));
 
       await expect(
-        updatePhasePrompt(phaseId, mockPromptFragment)
+        updatePrompt(`phases/${phaseId}`, mockPromptFragment)
       ).rejects.toThrow(
-        `Prompt with id ${mockPromptFragment.id} not found in phase ${phaseId}`
+        `phases/${phaseId} prompt with id ${mockPromptFragment.id} not found`
       );
     });
   });

@@ -192,7 +192,7 @@ export async function updatePrompt(
   const index = prompts.findIndex((p) => p.id === prompt.id);
 
   if (index === -1) {
-    throw new Error(`Prefix with id ${prompt.id} not found`);
+    throw new Error(`${filename} prompt with id ${prompt.id} not found`);
   }
 
   prompts[index] = updatePromptFragment(prompts[index], prompt);
