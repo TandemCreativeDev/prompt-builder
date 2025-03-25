@@ -3,43 +3,51 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { SuffixesData, PromptFragment, HistoryLogEntry } from "@/types/prompts";
+import { PromptsData, PromptFragment, HistoryLogEntry } from "@/types/prompts";
 import { PromptItem } from "./PromptItem";
 
 /**
- * Props for the SuffixPanel component
+ * Props for the PromptPanel component
  */
-export interface SuffixPanelProps {
+export interface PromptProps {
   /**
-   * The suffixes data to display
+   * The type of prompt being displayed
    */
-  suffixes: SuffixesData;
+  type: string;
   /**
-   * Event handler for when a suffix is selected
+   * The prompt data to display
    */
-  onSelectSuffix?: (suffix: PromptFragment) => void;
+  prompts: PromptsData;
   /**
-   * Event handler for when a suffix is updated
+   * Event handler for when a Prompt is selected
    */
-  onUpdateSuffix?: (
-    suffixId: string,
+  onSelectPrompt?: (Prompt: PromptFragment) => void;
+  /**
+   * Event handler for when a Prompt is updated
+   */
+  onUpdatePrompt?: (
+    PromptId: string,
     newText: string,
     persistChange: boolean
   ) => void;
   /**
    * Event handler for when a historical version is restored
    */
-  onRestoreVersion?: (suffixId: string, historyEntry: HistoryLogEntry) => void;
+  onRestoreVersion?: (PromptId: string, historyEntry: HistoryLogEntry) => void;
   /**
-   * Event handler for when a suffix is deprecated (soft delete)
+   * Event handler for when a Prompt is deprecated (soft delete)
    */
-  onDeprecatePrompt?: (suffixId: string) => Promise<boolean>;
+  onDeprecatePrompt?: (PromptId: string) => Promise<boolean>;
   /**
-   * Event handler for creating a new suffix
+   * Event handler for creating a new Prompt
    */
   onCreatePrompt?: (
     newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">
   ) => Promise<boolean>;
+  /**
+   * Array of selected Prompt IDs
+   */
+  selectedPromptIds?: string[];
   /**
    * Optional CSS class name for styling
    */
@@ -47,19 +55,21 @@ export interface SuffixPanelProps {
 }
 
 /**
- * Component that displays a list of suffix prompts with filtering and editing capabilities
+ * Component that displays a list of Prompt prompts with filtering and editing capabilities
  * @param props - Component props
  * @returns JSX.Element
  */
-export function SuffixPanel({
-  suffixes,
-  onSelectSuffix,
-  onUpdateSuffix,
+export function PromptPanel({
+  type,
+  prompts,
+  onSelectPrompt,
+  onUpdatePrompt,
   onRestoreVersion,
   onDeprecatePrompt,
   onCreatePrompt,
+  selectedPromptIds = [],
   className,
-}: SuffixPanelProps): JSX.Element {
+}: PromptProps): JSX.Element {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
   const [isCreating, setIsCreating] = React.useState(false);
@@ -67,38 +77,38 @@ export function SuffixPanel({
   const [newPromptTags, setNewPromptTags] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  // Extract all unique tags from suffixes
+  // Extract all unique tags from Promptes
   const allTags = React.useMemo(() => {
     const tagsSet = new Set<string>();
-    if (suffixes?.suffixes) {
-      suffixes.suffixes.forEach((suffix) => {
-        suffix.tags.forEach((tag) => tagsSet.add(tag));
+    if (prompts) {
+      prompts.forEach((prompt) => {
+        prompt.tags.forEach((tag) => tagsSet.add(tag));
       });
     }
     return Array.from(tagsSet);
-  }, [suffixes]);
+  }, [prompts]);
 
-  // Filter suffixes based on search term and selected tags
-  const filteredSuffixes = React.useMemo(() => {
-    if (!suffixes?.suffixes) return [];
+  // Filter Promptes based on search term and selected tags
+  const filteredPrompts = React.useMemo(() => {
+    if (!prompts) return [];
 
-    return suffixes.suffixes.filter((suffix) => {
+    return prompts.filter((prompt) => {
       // Filter out deprecated prompts
-      if (suffix.deprecated) return false;
+      if (prompt.deprecated) return false;
 
       // Filter by search term
       const matchesSearchTerm =
         searchTerm === "" ||
-        suffix.text.toLowerCase().includes(searchTerm.toLowerCase());
+        prompt.text.toLowerCase().includes(searchTerm.toLowerCase());
 
       // Filter by selected tags
       const matchesTags =
         selectedTags.length === 0 ||
-        selectedTags.some((tag) => suffix.tags.includes(tag));
+        selectedTags.some((tag) => prompt.tags.includes(tag));
 
       return matchesSearchTerm && matchesTags;
     });
-  }, [suffixes, searchTerm, selectedTags]);
+  }, [prompts, searchTerm, selectedTags]);
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prevTags) =>
@@ -135,7 +145,7 @@ export function SuffixPanel({
         setIsCreating(false);
       }
     } catch (error) {
-      console.error("Error creating suffix:", error);
+      console.error("Error creating Prompt:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -148,7 +158,7 @@ export function SuffixPanel({
       }`}
     >
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Suffix Prompts</h2>
+        <h2 className="text-xl font-bold">{`${type} Prompts`}</h2>
         {onCreatePrompt && !isCreating && (
           <Button
             size="sm"
@@ -162,7 +172,7 @@ export function SuffixPanel({
 
       {isCreating && (
         <div className="mb-4 border rounded-md p-3 bg-muted/20">
-          <h3 className="text-sm font-semibold mb-2">Create New Suffix</h3>
+          <h3 className="text-sm font-semibold mb-2">Create New Prompt</h3>
           <div className="space-y-2">
             <div>
               <label className="text-xs font-medium">Text:</label>
@@ -171,7 +181,7 @@ export function SuffixPanel({
                 value={newPromptText}
                 onChange={(e) => setNewPromptText(e.target.value)}
                 disabled={isSubmitting}
-                placeholder="Enter the suffix prompt text..."
+                placeholder="Enter the Prompt prompt text..."
               />
             </div>
             <div>
@@ -209,7 +219,7 @@ export function SuffixPanel({
 
       <div className="mb-4">
         <Input
-          placeholder="Search suffixes..."
+          placeholder="Search Promptes..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="mb-2"
@@ -234,19 +244,21 @@ export function SuffixPanel({
 
       <ScrollArea className="flex-grow overflow-auto">
         <div className="pr-4 space-y-2">
-          {filteredSuffixes.length === 0 ? (
+          {filteredPrompts.length === 0 ? (
             <p className="text-center text-muted-foreground p-4">
-              No suffixes found
+              No prompts found
             </p>
           ) : (
-            filteredSuffixes.map((suffix) => (
+            filteredPrompts.map((prompt) => (
               <PromptItem
-                key={suffix.id}
-                prompt={suffix}
-                onSelect={onSelectSuffix}
-                onUpdate={onUpdateSuffix}
+                key={prompt.id}
+                prompt={prompt}
+                onSelect={onSelectPrompt}
+                onUpdate={onUpdatePrompt}
                 onRestoreVersion={onRestoreVersion}
                 onDeprecate={onDeprecatePrompt}
+                isSelected={selectedPromptIds.includes(prompt.id)}
+                selectionMode="multiple"
               />
             ))
           )}
