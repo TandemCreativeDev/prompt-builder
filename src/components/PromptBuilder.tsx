@@ -2,14 +2,11 @@ import React, { useState, useEffect, KeyboardEvent, useRef, JSX } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { PrefixPanel } from "./panels/PrefixPanel";
-import { SuffixPanel } from "./panels/SuffixPanel";
+import { PromptPanel } from "./panels/PromptPanel";
 import { PhasePromptPanel } from "./panels/PhasePromptPanel";
 import {
-  PrefixesData,
-  SuffixesData,
+  PromptsData,
   PhasesConfig,
-  PhasePromptsData,
   PromptFragment,
   HistoryLogEntry,
 } from "@/types/prompts";
@@ -21,11 +18,11 @@ export interface PromptBuilderProps {
   /**
    * The prefixes data
    */
-  prefixesData: PrefixesData;
+  prefixData: PromptsData;
   /**
    * The suffixes data
    */
-  suffixesData: SuffixesData;
+  suffixData: PromptsData;
   /**
    * The phases configuration
    */
@@ -33,7 +30,7 @@ export interface PromptBuilderProps {
   /**
    * Map of phase prompts by phase ID
    */
-  phasePromptsMap: Record<string, PhasePromptsData>;
+  phasePromptsMap: Record<string, PromptsData>;
   /**
    * Event handler for generating a prompt
    */
@@ -55,15 +52,27 @@ export interface PromptBuilderProps {
    */
   onSelectPhasePrompt?: (phasePrompt: PromptFragment, phaseId: string) => void;
   /**
-   * The selected prefix
+   * Array of selected prefix IDs
    */
-  selectedPrefix: PromptFragment | null;
+  selectedPrefixIds: string[];
   /**
-   * The selected suffix
+   * Array of selected suffix IDs
    */
-  selectedSuffix: PromptFragment | null;
+  selectedSuffixIds: string[];
   /**
-   * The selected phase prompt
+   * The selected phase prompt ID
+   */
+  selectedPhasePromptId: string | null;
+  /**
+   * Array of selected prefix objects (for generating)
+   */
+  selectedPrefixes: PromptFragment[];
+  /**
+   * Array of selected suffix objects (for generating)
+   */
+  selectedSuffixes: PromptFragment[];
+  /**
+   * The selected phase prompt object (for generating)
    */
   selectedPhasePrompt: PromptFragment | null;
   /**
@@ -161,8 +170,8 @@ export interface PromptBuilderProps {
  * @returns JSX.Element
  */
 export function PromptBuilder({
-  prefixesData,
-  suffixesData,
+  prefixData,
+  suffixData,
   phasesConfig,
   phasePromptsMap,
   onGenerate,
@@ -170,8 +179,11 @@ export function PromptBuilder({
   onSelectPrefix,
   onSelectSuffix,
   onSelectPhasePrompt,
-  selectedPrefix,
-  selectedSuffix,
+  selectedPrefixIds,
+  selectedSuffixIds,
+  selectedPhasePromptId,
+  selectedPrefixes,
+  selectedSuffixes,
   mainText,
   onMainTextChange,
   generatedPrompt,
@@ -303,6 +315,7 @@ export function PromptBuilder({
             onRestoreVersion={onRestorePhasePrompt}
             onDeprecatePrompt={onDeprecatePhasePrompt}
             onCreatePrompt={onCreatePhasePrompt}
+            selectedPhasePromptId={selectedPhasePromptId ?? undefined}
             className="h-full overflow-auto"
           />
         </div>
@@ -350,21 +363,29 @@ export function PromptBuilder({
         <Card className="h-full">
           <CardContent className="p-4 h-full">
             <div className="mb-2">
-              {selectedPrefix && (
+              {selectedPrefixes.length > 0 && (
                 <div className="bg-muted p-2 rounded-md text-sm mb-2">
-                  <p className="font-medium">Selected Prefix:</p>
-                  <p className="truncate">{selectedPrefix.text}</p>
+                  <p className="font-medium">
+                    Selected Prefixes ({selectedPrefixes.length}):
+                  </p>
+                  {selectedPrefixes.map((prefix) => (
+                    <p key={prefix.id} className="truncate">
+                      {prefix.text.substring(0, 50)}...
+                    </p>
+                  ))}
                 </div>
               )}
             </div>
             <div className="h-[35vh] w-full overflow-hidden">
-              <PrefixPanel
-                prefixes={prefixesData}
-                onSelectPrefix={onSelectPrefix}
-                onUpdatePrefix={onUpdatePrefix}
+              <PromptPanel
+                type="Prefix"
+                prompts={prefixData}
+                onSelectPrompt={onSelectPrefix}
+                onUpdatePrompt={onUpdatePrefix}
                 onRestoreVersion={onRestorePrefix}
                 onDeprecatePrompt={onDeprecatePrefix}
                 onCreatePrompt={onCreatePrefix}
+                selectedPromptIds={selectedPrefixIds}
                 className="h-full overflow-auto"
               />
             </div>
@@ -403,7 +424,7 @@ export function PromptBuilder({
 
                   <ScrollArea className="h-[200px]">
                     {dropdownType === "prefix" &&
-                      prefixesData.prefixes
+                      prefixData
                         .filter((prefix) => !prefix.deprecated)
                         .map((prefix) => (
                           <button
@@ -418,7 +439,7 @@ export function PromptBuilder({
                         ))}
 
                     {dropdownType === "suffix" &&
-                      suffixesData.suffixes
+                      suffixData
                         .filter((suffix) => !suffix.deprecated)
                         .map((suffix) => (
                           <button
@@ -433,12 +454,12 @@ export function PromptBuilder({
                         ))}
 
                     {(dropdownType === "phase" || dropdownType === "all") &&
-                      phasesConfig.phases.map((phase) => (
+                      phasesConfig.map((phase) => (
                         <div key={phase.id} className="mb-2">
                           <div className="px-2 py-1 bg-secondary/20 text-xs font-medium">
                             {phase.name}
                           </div>
-                          {phasePromptsMap[phase.id]?.prompts
+                          {phasePromptsMap[phase.id]
                             .filter((prompt) => !prompt.deprecated)
                             .map((prompt) => (
                               <button
@@ -463,7 +484,7 @@ export function PromptBuilder({
                         <div className="px-2 py-1 bg-secondary/20 text-xs font-medium mt-2">
                           Prefixes
                         </div>
-                        {prefixesData.prefixes
+                        {prefixData
                           .filter((prefix) => !prefix.deprecated)
                           .slice(0, 3) // Limit shown items
                           .map((prefix) => (
@@ -481,7 +502,7 @@ export function PromptBuilder({
                         <div className="px-2 py-1 bg-secondary/20 text-xs font-medium mt-2">
                           Suffixes
                         </div>
-                        {suffixesData.suffixes
+                        {suffixData
                           .filter((suffix) => !suffix.deprecated)
                           .slice(0, 3) // Limit shown items
                           .map((suffix) => (
@@ -500,16 +521,14 @@ export function PromptBuilder({
 
                     {/* No results message */}
                     {((dropdownType === "prefix" &&
-                      prefixesData.prefixes.filter((p) => !p.deprecated)
-                        .length === 0) ||
+                      prefixData.filter((p) => !p.deprecated).length === 0) ||
                       (dropdownType === "suffix" &&
-                        suffixesData.suffixes.filter((s) => !s.deprecated)
-                          .length === 0) ||
+                        suffixData.filter((s) => !s.deprecated).length === 0) ||
                       (dropdownType === "phase" &&
                         Object.values(phasePromptsMap).every(
                           (p) =>
-                            p.prompts.filter((prompt) => !prompt.deprecated)
-                              .length === 0
+                            p.filter((prompt) => !prompt.deprecated).length ===
+                            0
                         ))) && (
                       <div className="px-2 py-4 text-sm text-muted-foreground text-center">
                         No prompts available
@@ -536,21 +555,29 @@ export function PromptBuilder({
         <Card className="h-full">
           <CardContent className="p-4 h-full">
             <div className="mb-2">
-              {selectedSuffix && (
+              {selectedSuffixes.length > 0 && (
                 <div className="bg-muted p-2 rounded-md text-sm mb-2">
-                  <p className="font-medium">Selected Suffix:</p>
-                  <p className="truncate">{selectedSuffix.text}</p>
+                  <p className="font-medium">
+                    Selected Suffixes ({selectedSuffixes.length}):
+                  </p>
+                  {selectedSuffixes.map((suffix) => (
+                    <p key={suffix.id} className="truncate">
+                      {suffix.text.substring(0, 50)}...
+                    </p>
+                  ))}
                 </div>
               )}
             </div>
             <div className="h-[35vh] w-full overflow-hidden">
-              <SuffixPanel
-                suffixes={suffixesData}
-                onSelectSuffix={onSelectSuffix}
-                onUpdateSuffix={onUpdateSuffix}
+              <PromptPanel
+                type="Suffix"
+                prompts={suffixData}
+                onSelectPrompt={onSelectSuffix}
+                onUpdatePrompt={onUpdateSuffix}
                 onRestoreVersion={onRestoreSuffix}
                 onDeprecatePrompt={onDeprecateSuffix}
                 onCreatePrompt={onCreateSuffix}
+                selectedPromptIds={selectedSuffixIds}
                 className="h-full overflow-auto"
               />
             </div>
