@@ -26,25 +26,9 @@ export interface PromptFragment {
 }
 
 /**
- * Interface for prefix prompts collection
+ * Interface for prompts collection
  */
-export interface PrefixesData {
-  prefixes: PromptFragment[];
-}
-
-/**
- * Interface for suffix prompts collection
- */
-export interface SuffixesData {
-  suffixes: PromptFragment[];
-}
-
-/**
- * Interface for phase prompts collection for a specific phase
- */
-export interface PhasePromptsData {
-  prompts: PromptFragment[];
-}
+export type PromptsData = PromptFragment[];
 
 /**
  * Interface for phase metadata
@@ -58,6 +42,4 @@ export interface Phase {
 /**
  * Interface for phases configuration
  */
-export interface PhasesConfig {
-  phases: Phase[];
-}
+export type PhasesConfig = Phase[];
