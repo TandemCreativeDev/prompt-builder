@@ -33,12 +33,9 @@ export interface PromptBuilderProps {
   phasePromptsMap: Record<string, PromptsData>;
   /**
    * Event handler for generating a prompt
+   * @param tidy - Whether to tidy with AI before generating
    */
-  onGenerate?: () => void;
-  /**
-   * Event handler for tidying and generating a prompt
-   */
-  onTidyAndGenerate?: () => void;
+  onGenerate?: (tidy?: boolean) => void;
   /**
    * Event handler for when a prefix is selected
    */
@@ -175,7 +172,6 @@ export function PromptBuilder({
   phasesConfig,
   phasePromptsMap,
   onGenerate,
-  onTidyAndGenerate,
   onSelectPrefix,
   onSelectSuffix,
   onSelectPhasePrompt,
@@ -223,10 +219,10 @@ export function PromptBuilder({
     // Generate prompt shortcuts
     if (event.ctrlKey && event.key === "Enter") {
       event.preventDefault();
-      onGenerate?.();
+      onGenerate?.(false); // Regular generate without tidying
     } else if (event.ctrlKey && event.key === "t") {
       event.preventDefault();
-      onTidyAndGenerate?.();
+      onGenerate?.(true); // Generate with AI tidying
     }
 
     // Handle dropdown triggers at the start of a line
@@ -345,13 +341,17 @@ export function PromptBuilder({
 
       {/* Action Buttons - Centered */}
       <div className="flex justify-center gap-4 py-4">
-        <Button variant="default" className="px-6" onClick={onGenerate}>
+        <Button
+          variant="default"
+          className="px-6"
+          onClick={() => onGenerate?.(false)}
+        >
           Generate (Ctrl+Enter)
         </Button>
         <Button
           variant="secondary"
           className="px-6"
-          onClick={onTidyAndGenerate}
+          onClick={() => onGenerate?.(true)}
         >
           Tidy with AI and Generate (Ctrl+T+Enter)
         </Button>
