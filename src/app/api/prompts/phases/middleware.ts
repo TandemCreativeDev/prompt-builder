@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
     try {
       // Get the valid phases from the configuration
       const phasesConfig = await readPhasesConfig();
-      const validPhaseIds = phasesConfig.phases.map((phase) => phase.id);
+      const validPhaseIds = phasesConfig.map((phase) => phase.id);
 
       // If the phase ID is not valid, return a 404 response
       if (!validPhaseIds.includes(phaseId)) {
