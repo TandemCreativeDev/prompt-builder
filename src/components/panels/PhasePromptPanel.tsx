@@ -1,27 +1,16 @@
 import React, { JSX } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   PhasesConfig,
   PromptsData,
   PromptFragment,
   HistoryLogEntry,
 } from "@/types/prompts";
-import { BasePromptPanelProps, PromptPanel } from "./PromptPanel";
+import { PromptPanel } from "./PromptPanel";
 
 /**
  * Props for the PhasePromptPanel component
  */
-export interface PhasePromptPanelProps
-  extends Omit<
-    BasePromptPanelProps,
-    | "prompts"
-    | "onSelectPrompt"
-    | "onUpdatePrompt"
-    | "onRestoreVersion"
-    | "onDeprecatePrompt"
-    | "onCreatePrompt"
-    | "selectedPromptIds"
-  > {
+export interface PhasePromptPanelProps {
   /**
    * The phases configuration data
    */
@@ -66,6 +55,10 @@ export interface PhasePromptPanelProps
    * Selected phase prompt ID for the current active phase
    */
   selectedPhasePromptId?: string;
+  /**
+   * Optional CSS class name for styling
+   */
+  className?: string;
 }
 
 /**
@@ -88,113 +81,22 @@ export function PhasePromptPanel({
     phasesConfig.length > 0 ? phasesConfig[0].id : ""
   );
 
-  // Get current phase prompts data
-  const currentPhasePrompts = React.useMemo(() => {
-    // Check if the active phase exists in the map
-    if (phasePromptsMap && activePhase && phasePromptsMap[activePhase]) {
-      return phasePromptsMap[activePhase];
-    }
-    return [];
-  }, [phasePromptsMap, activePhase]);
-
-  // Find current phase info
-  const currentPhase = phasesConfig.find((phase) => phase.id === activePhase);
-  const currentPhaseName = currentPhase?.name || "Phase";
-
-  // Handle tab change
-  const handleTabChange = (value: string) => {
-    setActivePhase(value);
-  };
-
-  // Map handlers to work with the base PromptPanel
-  const handleSelectPrompt = (prompt: PromptFragment) => {
-    onSelectPhasePrompt?.(prompt, activePhase);
-  };
-
-  const handleUpdatePrompt = (
-    promptId: string,
-    newText: string,
-    persistChange: boolean
-  ) => {
-    onUpdatePhasePrompt?.(activePhase, promptId, newText, persistChange);
-  };
-
-  const handleRestoreVersion = (
-    promptId: string,
-    historyEntry: HistoryLogEntry
-  ) => {
-    onRestoreVersion?.(activePhase, promptId, historyEntry);
-  };
-
-  const handleDeprecatePrompt = async (promptId: string) => {
-    if (onDeprecatePrompt) {
-      return await onDeprecatePrompt(promptId, activePhase);
-    }
-    return false;
-  };
-
-  const handleCreatePrompt = async (
-    newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">
-  ) => {
-    if (onCreatePrompt && activePhase) {
-      return await onCreatePrompt(activePhase, {
-        ...newPrompt,
-        phase_id: activePhase, // Ensure the phase ID is set
-      });
-    }
-    return false;
-  };
-
   return (
-    <div
-      className={`flex flex-col h-full border rounded-lg p-4 ${
-        className || ""
-      }`}
-    >
-      <div className="flex flex-col h-full">
-        <h2 className="text-xl font-bold mb-4">Phase Prompts</h2>
-
-        <Tabs
-          value={activePhase}
-          onValueChange={handleTabChange}
-          className="w-full mb-4"
-        >
-          <TabsList className="w-full">
-            {phasesConfig.map((phase) => (
-              <TabsTrigger key={phase.id} value={phase.id} className="flex-1">
-                {phase.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          {phasesConfig.map((phase) => (
-            <TabsContent key={phase.id} value={phase.id} className="mt-2">
-              <p className="text-sm text-muted-foreground mb-2">
-                {phase.description}
-              </p>
-            </TabsContent>
-          ))}
-        </Tabs>
-
-        {/* Use the base PromptPanel component with phase-specific props */}
-        {activePhase && (
-          <PromptPanel
-            type="Phase"
-            title={`${currentPhaseName} Prompts`}
-            prompts={currentPhasePrompts}
-            onSelectPrompt={handleSelectPrompt}
-            onUpdatePrompt={handleUpdatePrompt}
-            onRestoreVersion={handleRestoreVersion}
-            onDeprecatePrompt={handleDeprecatePrompt}
-            onCreatePrompt={handleCreatePrompt}
-            selectedPromptIds={
-              selectedPhasePromptId ? [selectedPhasePromptId] : []
-            }
-            selectionMode="single"
-            className="flex-grow border-none p-0"
-          />
-        )}
-      </div>
-    </div>
+    <PromptPanel
+      type="Phase"
+      prompts={[]} // Not used in phase mode
+      selectedPromptIds={selectedPhasePromptId ? [selectedPhasePromptId] : []}
+      selectionMode="single"
+      className={className}
+      phasesConfig={phasesConfig}
+      phasePromptsMap={phasePromptsMap}
+      activePhase={activePhase}
+      onPhaseChange={setActivePhase}
+      onSelectPhasePrompt={onSelectPhasePrompt}
+      onUpdatePhasePrompt={onUpdatePhasePrompt}
+      onRestorePhaseVersion={onRestoreVersion}
+      onDeprecatePhasePrompt={onDeprecatePrompt}
+      onCreatePhasePrompt={onCreatePrompt}
+    />
   );
 }
