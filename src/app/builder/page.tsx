@@ -869,15 +869,19 @@ export default function PromptBuilderPage() {
     if (!mainText || mainText.trim() === "") {
       toast.error(
         `Please enter some text to ${
-          tidy ? "tidy" : "generate a unique prompt"
-        }`
+          tidy ? "tidy and " : " "
+        }generate a unique prompt`
       );
       return;
     }
 
+    // Create a toast ID for the loading toast so we can dismiss it later
+    let toastId: string | number | undefined;
+
     try {
       if (tidy) {
-        toast.loading("Processing with AI...");
+        // Store the toast ID when creating the loading toast
+        toastId = toast.loading("Processing with AI...");
       }
 
       // Common preparation - gather all prompt components
@@ -919,17 +923,27 @@ export default function PromptBuilderPage() {
       // Set the generated prompt from the assembled prompt in the response
       setGeneratedPrompt(data.assembledPrompt);
 
+      // Dismiss the loading toast if it exists
+      if (toastId !== undefined) {
+        toast.dismiss(toastId);
+      }
+
       if (tidy) {
         toast.success("Text tidied and prompt generated successfully!");
       }
     } catch (error) {
       console.error("Error generating prompt:", error);
+
+      // Dismiss the loading toast if it exists
+      if (toastId !== undefined) {
+        toast.dismiss(toastId);
+      }
+
       toast.error(
         error instanceof Error ? error.message : "Failed to generate prompt"
       );
-    } finally {
-      toast.dismiss();
     }
+    // Removed the finally block since we're explicitly handling toast dismissal in both the try and catch blocks
   };
 
   if (loading) {
