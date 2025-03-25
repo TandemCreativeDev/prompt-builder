@@ -1,84 +1,82 @@
-{
-  "prefixes": [
-    {
-      "id": "SW-PREFIX-001",
-      "text": "Explain thoroughly:",
-      "tags": ["explanation", "code analysis", "prefix"],
-      "associated_model_type": "thinking",
-      "rating": 4.7,
-      "uses": 25,
-      "last_used": "2025-03-11",
-      "created_by": "SimonWillison",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 21,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-11T10:00:00Z",
-          "text": "Extracted from Simon Willison’s article, emphasizing in-depth technical breakdowns."
-        },
-        {
-          "timestamp": "2025-03-12T08:30:00Z",
-          "text": "Validated in a code generation context."
-        }
-      ]
-    },
-    {
-      "id": "AD-PREFIX-001",
-      "text": "Let's begin by understanding the project vision:",
-      "tags": ["conception", "prefix"],
-      "associated_model_type": "conversational",
-      "rating": 4.6,
-      "uses": 30,
-      "last_used": "2025-03-16",
-      "created_by": "AalapDavjekar",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 52,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-16T09:00:00Z",
-          "text": "Extracted from Medium guide part 1."
-        }
-      ]
-    },
-    {
-      "id": "AD-PREFIX-002",
-      "text": "Consider KISS and DOTADIW principles when designing the architecture:",
-      "tags": ["design", "prefix"],
-      "associated_model_type": "thinking",
-      "rating": 4.8,
-      "uses": 20,
-      "last_used": "2025-03-16",
-      "created_by": "AalapDavjekar",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 72,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-16T10:00:00Z",
-          "text": "Extracted from Medium guide part 2."
-        }
-      ]
-    },
-    {
-      "id": "HAR-PREFIX-002",
-      "text": "Outline each function's purpose clearly before implementing it.",
-      "tags": ["planning", "code design"],
-      "associated_model_type": "thinking",
-      "rating": 4.4,
-      "uses": 12,
-      "last_used": "2025-03-16",
-      "created_by": "Harper",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 70,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-16T14:15:00Z",
-          "text": "Extracted from Harper's LLM codegen workflow post."
-        }
-      ]
-    }
-  ]
-}
+[
+  {
+    "id": "SW-PREFIX-001",
+    "text": "Explain thoroughly:",
+    "tags": ["explanation", "code analysis", "prefix"],
+    "associated_model_type": "thinking",
+    "rating": 4.7,
+    "uses": 25,
+    "last_used": "2025-03-11",
+    "created_by": "SimonWillison",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 21,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-11T10:00:00Z",
+        "text": "Extracted from Simon Willison’s article, emphasizing in-depth technical breakdowns."
+      },
+      {
+        "timestamp": "2025-03-12T08:30:00Z",
+        "text": "Validated in a code generation context."
+      }
+    ]
+  },
+  {
+    "id": "AD-PREFIX-001",
+    "text": "Let's begin by understanding the project vision:",
+    "tags": ["conception", "prefix"],
+    "associated_model_type": "conversational",
+    "rating": 4.6,
+    "uses": 30,
+    "last_used": "2025-03-16",
+    "created_by": "AalapDavjekar",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 52,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-16T09:00:00Z",
+        "text": "Extracted from Medium guide part 1."
+      }
+    ]
+  },
+  {
+    "id": "AD-PREFIX-002",
+    "text": "Consider KISS and DOTADIW principles when designing the architecture:",
+    "tags": ["design", "prefix"],
+    "associated_model_type": "thinking",
+    "rating": 4.8,
+    "uses": 20,
+    "last_used": "2025-03-16",
+    "created_by": "AalapDavjekar",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 72,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-16T10:00:00Z",
+        "text": "Extracted from Medium guide part 2."
+      }
+    ]
+  },
+  {
+    "id": "HAR-PREFIX-002",
+    "text": "Outline each function's purpose clearly before implementing it.",
+    "tags": ["planning", "code design"],
+    "associated_model_type": "thinking",
+    "rating": 4.4,
+    "uses": 12,
+    "last_used": "2025-03-16",
+    "created_by": "Harper",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 70,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-16T14:15:00Z",
+        "text": "Extracted from Harper's LLM codegen workflow post."
+      }
+    ]
+  }
+]

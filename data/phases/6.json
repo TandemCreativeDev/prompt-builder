@@ -1,46 +1,44 @@
-{
-  "prompts": [
-    {
-      "id": "AD-P3-003",
-      "text": "Outline deployment steps, including rollback strategies and security checks. Generate deployment scripts that follow best practices.",
-      "tags": ["deployment", "scripts", "security"],
-      "associated_model_type": "reasoning",
-      "rating": 4.7,
-      "uses": 22,
-      "last_used": "2025-03-16",
-      "created_by": "AalapDavjekar",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 148,
-      "deprecated": false,
-      "history_log": []
-    },
-    {
-      "id": "GEN-P6-002",
-      "text": "Review the deployment plan with the operations team and update the ADR with any necessary adjustments.",
-      "tags": ["deployment", "review", "ADR"],
-      "associated_model_type": "reasoning",
-      "rating": 4.2,
-      "uses": 9,
-      "last_used": "2025-03-18",
-      "created_by": "system",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 129,
-      "deprecated": false,
-      "history_log": []
-    },
-    {
-      "id": "AD-P6-003",
-      "text": "Generate automated deployment scripts and configuration files that adhere to best security practices and include rollback procedures.",
-      "tags": ["deployment", "automation", "security"],
-      "associated_model_type": "reasoning",
-      "rating": 4.7,
-      "uses": 15,
-      "last_used": "2025-03-18",
-      "created_by": "system",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 147,
-      "deprecated": false,
-      "history_log": []
-    }
-  ]
-}
+[
+  {
+    "id": "AD-P3-003",
+    "text": "Outline deployment steps, including rollback strategies and security checks. Generate deployment scripts that follow best practices.",
+    "tags": ["deployment", "scripts", "security"],
+    "associated_model_type": "reasoning",
+    "rating": 4.7,
+    "uses": 22,
+    "last_used": "2025-03-16",
+    "created_by": "AalapDavjekar",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 148,
+    "deprecated": false,
+    "history_log": []
+  },
+  {
+    "id": "GEN-P6-002",
+    "text": "Review the deployment plan with the operations team and update the ADR with any necessary adjustments.",
+    "tags": ["deployment", "review", "ADR"],
+    "associated_model_type": "reasoning",
+    "rating": 4.2,
+    "uses": 9,
+    "last_used": "2025-03-18",
+    "created_by": "system",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 129,
+    "deprecated": false,
+    "history_log": []
+  },
+  {
+    "id": "AD-P6-003",
+    "text": "Generate automated deployment scripts and configuration files that adhere to best security practices and include rollback procedures.",
+    "tags": ["deployment", "automation", "security"],
+    "associated_model_type": "reasoning",
+    "rating": 4.7,
+    "uses": 15,
+    "last_used": "2025-03-18",
+    "created_by": "system",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 147,
+    "deprecated": false,
+    "history_log": []
+  }
+]

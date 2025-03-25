@@ -1,156 +1,154 @@
-{
-  "suffixes": [
-    {
-      "id": "HAR-SUF-001",
-      "text": "Ensure the final output is production-ready.",
-      "tags": ["production", "finalization", "suffix"],
-      "associated_model_type": "reasoning",
-      "rating": 4.4,
-      "uses": 18,
-      "last_used": "2025-03-16",
-      "created_by": "Harper",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 52,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-16T15:00:00Z",
-          "text": "Extracted from Harper's blog."
-        }
-      ]
-    },
-    {
-      "id": "MD-SUF-001",
-      "text": "Conceptualise several options, review them all and pick the most suitable explaining why.",
-      "tags": ["production", "finalization", "suffix"],
-      "associated_model_type": "reasoning",
-      "rating": 4.4,
-      "uses": 18,
-      "last_used": "2025-03-16",
-      "created_by": "Harper",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 52,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-16T15:00:00Z",
-          "text": "Extracted from Harper's blog."
-        }
-      ]
-    },
-    {
-      "id": "AD-SUF-001",
-      "text": "Summarize and document the decisions made, ensuring they align with the Unix philosophy of simplicity and modularity.",
-      "tags": ["documentation", "finalization", "suffix"],
-      "associated_model_type": "thinking",
-      "rating": 4.7,
-      "uses": 22,
-      "last_used": "2025-03-16",
-      "created_by": "AalapDavjekar",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 128,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-16T12:00:00Z",
-          "text": "Extracted from Medium guide part 3."
-        }
-      ]
-    },
-    {
-      "id": "AD-SUF-002",
-      "text": "Think step-by-step.",
-      "tags": ["documentation", "finalization", "suffix"],
-      "associated_model_type": "thinking",
-      "rating": 4.7,
-      "uses": 22,
-      "last_used": "2025-03-16",
-      "created_by": "AalapDavjekar",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 128,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-16T12:00:00Z",
-          "text": "Extracted from Medium guide part 3."
-        }
-      ]
-    },
-    {
-      "id": "AD-SUF-003",
-      "text": "For each step, provide a brief explanation of your reasoning.",
-      "tags": ["documentation", "finalization", "suffix"],
-      "associated_model_type": "thinking",
-      "rating": 4.7,
-      "uses": 22,
-      "last_used": "2025-03-16",
-      "created_by": "AalapDavjekar",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 128,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-16T12:00:00Z",
-          "text": "Extracted from Medium guide part 3."
-        }
-      ]
-    },
-    {
-      "id": "AO-SUF-002",
-      "text": "Review code changes and ensure atomic commits following conventional commit guidelines.",
-      "tags": ["commits", "version control", "suffix"],
-      "associated_model_type": "reasoning",
-      "rating": 4.5,
-      "uses": 10,
-      "last_used": "2025-03-17",
-      "created_by": "AddyOsmani",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 102,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-17T12:30:00Z",
-          "text": "Sourced from LinkedIn insights."
-        }
-      ]
-    },
-    {
-      "id": "AO-SUF-003",
-      "text": "Finalize your commit message in a concise format following conventional commit guidelines.",
-      "tags": ["commit", "finalization", "suffix"],
-      "associated_model_type": "reasoning",
-      "rating": 4.6,
-      "uses": 8,
-      "last_used": "2025-03-18",
-      "created_by": "AddyOsmani",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 106,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-18T10:45:00Z",
-          "text": "Adapted from commit best practices in the LinkedIn post."
-        }
-      ]
-    },
-    {
-      "id": "SW-SUF-002",
-      "text": "Double-check edge cases and potential errors before finalizing the code.",
-      "tags": ["edge cases", "error handling", "suffix"],
-      "associated_model_type": "reasoning",
-      "rating": 4.5,
-      "uses": 9,
-      "last_used": "2025-03-18",
-      "created_by": "SimonWillison",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 87,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-18T11:15:00Z",
-          "text": "Adapted from error-handling recommendations in the article."
-        }
-      ]
-    }
-  ]
-}
+[
+  {
+    "id": "HAR-SUF-001",
+    "text": "Ensure the final output is production-ready.",
+    "tags": ["production", "finalization", "suffix"],
+    "associated_model_type": "reasoning",
+    "rating": 4.4,
+    "uses": 18,
+    "last_used": "2025-03-16",
+    "created_by": "Harper",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 52,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-16T15:00:00Z",
+        "text": "Extracted from Harper's blog."
+      }
+    ]
+  },
+  {
+    "id": "MD-SUF-001",
+    "text": "Conceptualise several options, review them all and pick the most suitable explaining why.",
+    "tags": ["production", "finalization", "suffix"],
+    "associated_model_type": "reasoning",
+    "rating": 4.4,
+    "uses": 18,
+    "last_used": "2025-03-16",
+    "created_by": "Harper",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 52,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-16T15:00:00Z",
+        "text": "Extracted from Harper's blog."
+      }
+    ]
+  },
+  {
+    "id": "AD-SUF-001",
+    "text": "Summarize and document the decisions made, ensuring they align with the Unix philosophy of simplicity and modularity.",
+    "tags": ["documentation", "finalization", "suffix"],
+    "associated_model_type": "thinking",
+    "rating": 4.7,
+    "uses": 22,
+    "last_used": "2025-03-16",
+    "created_by": "AalapDavjekar",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 128,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-16T12:00:00Z",
+        "text": "Extracted from Medium guide part 3."
+      }
+    ]
+  },
+  {
+    "id": "AD-SUF-002",
+    "text": "Think step-by-step.",
+    "tags": ["documentation", "finalization", "suffix"],
+    "associated_model_type": "thinking",
+    "rating": 4.7,
+    "uses": 22,
+    "last_used": "2025-03-16",
+    "created_by": "AalapDavjekar",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 128,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-16T12:00:00Z",
+        "text": "Extracted from Medium guide part 3."
+      }
+    ]
+  },
+  {
+    "id": "AD-SUF-003",
+    "text": "For each step, provide a brief explanation of your reasoning.",
+    "tags": ["documentation", "finalization", "suffix"],
+    "associated_model_type": "thinking",
+    "rating": 4.7,
+    "uses": 22,
+    "last_used": "2025-03-16",
+    "created_by": "AalapDavjekar",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 128,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-16T12:00:00Z",
+        "text": "Extracted from Medium guide part 3."
+      }
+    ]
+  },
+  {
+    "id": "AO-SUF-002",
+    "text": "Review code changes and ensure atomic commits following conventional commit guidelines.",
+    "tags": ["commits", "version control", "suffix"],
+    "associated_model_type": "reasoning",
+    "rating": 4.5,
+    "uses": 10,
+    "last_used": "2025-03-17",
+    "created_by": "AddyOsmani",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 102,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-17T12:30:00Z",
+        "text": "Sourced from LinkedIn insights."
+      }
+    ]
+  },
+  {
+    "id": "AO-SUF-003",
+    "text": "Finalize your commit message in a concise format following conventional commit guidelines.",
+    "tags": ["commit", "finalization", "suffix"],
+    "associated_model_type": "reasoning",
+    "rating": 4.6,
+    "uses": 8,
+    "last_used": "2025-03-18",
+    "created_by": "AddyOsmani",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 106,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-18T10:45:00Z",
+        "text": "Adapted from commit best practices in the LinkedIn post."
+      }
+    ]
+  },
+  {
+    "id": "SW-SUF-002",
+    "text": "Double-check edge cases and potential errors before finalizing the code.",
+    "tags": ["edge cases", "error handling", "suffix"],
+    "associated_model_type": "reasoning",
+    "rating": 4.5,
+    "uses": 9,
+    "last_used": "2025-03-18",
+    "created_by": "SimonWillison",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 87,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-18T11:15:00Z",
+        "text": "Adapted from error-handling recommendations in the article."
+      }
+    ]
+  }
+]

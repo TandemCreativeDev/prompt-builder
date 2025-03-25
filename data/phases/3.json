@@ -1,70 +1,68 @@
-{
-  "prompts": [
-    {
-      "id": "HAR-P3-001",
-      "text": "Draft a detailed, step-by-step blueprint for building this project. Then, once you have a solid plan, break it down into small, iterative chunks that build on each other. Look at these chunks and then go another round to break it into small steps. review the results and make sure that the steps are small enough to be implemented safely, but big enough to move the project forward. Iterate until you feel that the steps are right sized for this project.\nFrom here you should have the foundation to provide a series of prompts for a code-generation LLM that will implement each step. Prioritize best practices, and incremental progress, ensuring no big jumps in complexity at any stage. Make sure that each prompt builds on the previous prompts, and ends with wiring things together. There should be no hanging or orphaned code that isn't integrated into a previous step.\nMake sure and separate each prompt section. Use markdown. Each prompt should be tagged as text using code tags. The goal is to output prompts, but context, etc is important as well.",
-      "tags": ["planning", "implementation plan", "incremental"],
-      "associated_model_type": "thinking",
-      "rating": 4.6,
-      "uses": 20,
-      "last_used": "2025-03-16",
-      "created_by": "HarperReed",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 1053,
-      "deprecated": false,
-      "history_log": []
-    },
-    {
-      "id": "HAR-P3-002",
-      "text": "Can you make a `todo.md` that I can use as a checklist? Be thorough.",
-      "tags": ["planning", "checklist"],
-      "associated_model_type": "thinking",
-      "rating": 4.6,
-      "uses": 20,
-      "last_used": "2025-03-16",
-      "created_by": "HarperReed",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 50,
-      "deprecated": false,
-      "history_log": []
-    },
-    {
-      "id": "GEN-P3-002",
-      "text": "Create a comprehensive project timeline that aligns with the modular prompt plan and identifies key milestones for iterative development.",
-      "tags": ["planning", "timeline", "milestones"],
-      "associated_model_type": "thinking",
-      "rating": 4,
-      "uses": 12,
-      "last_used": "2025-03-18",
-      "created_by": "system",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 152,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-18T09:00:00Z",
-          "text": "System-generated planning prompt."
-        }
-      ]
-    },
-    {
-      "id": "AD-P3-004",
-      "text": "Create a comprehensive prompt plan that outlines each development step in detail, ensuring that tasks are modular and build incrementally on previous work.",
-      "tags": ["planning", "prompt plan", "incremental"],
-      "associated_model_type": "thinking",
-      "rating": 4.7,
-      "uses": 14,
-      "last_used": "2025-03-18",
-      "created_by": "system",
-      "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
-      "length": 152,
-      "deprecated": false,
-      "history_log": [
-        {
-          "timestamp": "2025-03-18T10:00:00Z",
-          "text": "System-generated to complement planning requirements."
-        }
-      ]
-    }
-  ]
-}
+[
+  {
+    "id": "HAR-P3-001",
+    "text": "Draft a detailed, step-by-step blueprint for building this project. Then, once you have a solid plan, break it down into small, iterative chunks that build on each other. Look at these chunks and then go another round to break it into small steps. review the results and make sure that the steps are small enough to be implemented safely, but big enough to move the project forward. Iterate until you feel that the steps are right sized for this project.\nFrom here you should have the foundation to provide a series of prompts for a code-generation LLM that will implement each step. Prioritize best practices, and incremental progress, ensuring no big jumps in complexity at any stage. Make sure that each prompt builds on the previous prompts, and ends with wiring things together. There should be no hanging or orphaned code that isn't integrated into a previous step.\nMake sure and separate each prompt section. Use markdown. Each prompt should be tagged as text using code tags. The goal is to output prompts, but context, etc is important as well.",
+    "tags": ["planning", "implementation plan", "incremental"],
+    "associated_model_type": "thinking",
+    "rating": 4.6,
+    "uses": 20,
+    "last_used": "2025-03-16",
+    "created_by": "HarperReed",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 1053,
+    "deprecated": false,
+    "history_log": []
+  },
+  {
+    "id": "HAR-P3-002",
+    "text": "Can you make a `todo.md` that I can use as a checklist? Be thorough.",
+    "tags": ["planning", "checklist"],
+    "associated_model_type": "thinking",
+    "rating": 4.6,
+    "uses": 20,
+    "last_used": "2025-03-16",
+    "created_by": "HarperReed",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 50,
+    "deprecated": false,
+    "history_log": []
+  },
+  {
+    "id": "GEN-P3-002",
+    "text": "Create a comprehensive project timeline that aligns with the modular prompt plan and identifies key milestones for iterative development.",
+    "tags": ["planning", "timeline", "milestones"],
+    "associated_model_type": "thinking",
+    "rating": 4,
+    "uses": 12,
+    "last_used": "2025-03-18",
+    "created_by": "system",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 152,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-18T09:00:00Z",
+        "text": "System-generated planning prompt."
+      }
+    ]
+  },
+  {
+    "id": "AD-P3-004",
+    "text": "Create a comprehensive prompt plan that outlines each development step in detail, ensuring that tasks are modular and build incrementally on previous work.",
+    "tags": ["planning", "prompt plan", "incremental"],
+    "associated_model_type": "thinking",
+    "rating": 4.7,
+    "uses": 14,
+    "last_used": "2025-03-18",
+    "created_by": "system",
+    "ai_version_compatibility": ["ChatGPT-4o", "Claude 3.5"],
+    "length": 152,
+    "deprecated": false,
+    "history_log": [
+      {
+        "timestamp": "2025-03-18T10:00:00Z",
+        "text": "System-generated to complement planning requirements."
+      }
+    ]
+  }
+]
