@@ -10,6 +10,10 @@ export interface GenerateRequest {
    */
   mainText: string;
   /**
+   * Whether to tidy the text using AI before generating the final prompt
+   */
+  tidy?: boolean;
+  /**
    * Optional model to use (defaults to gpt-4o)
    */
   model?: string;
@@ -38,9 +42,17 @@ export interface GenerateRequest {
    */
   prefixId?: string;
   /**
+   * Optional IDs of the selected prefixes for history logging
+   */
+  prefixIds?: string[];
+  /**
    * Optional ID of the selected suffix for history logging
    */
   suffixId?: string;
+  /**
+   * Optional IDs of the selected suffixes for history logging
+   */
+  suffixIds?: string[];
   /**
    * Optional ID of the selected phase prompt for history logging
    */
@@ -56,23 +68,24 @@ export interface GenerateRequest {
  */
 export interface GenerateResponse {
   /**
-   * The refined/tidied text from the OpenAI API
+   * The refined/tidied text from the OpenAI API (if tidying was requested)
+   * or the original main text (if no tidying was requested)
    */
   refinedText: string;
   /**
    * The fully assembled prompt with all components
    */
-  assembledPrompt?: string;
+  assembledPrompt: string;
   /**
    * The ID of the history entry created
    */
   historyId?: string;
   /**
-   * The model used for generation
+   * The model used for generation (if tidying was requested)
    */
-  model: string;
+  model?: string;
   /**
-   * Optional metadata about the generation
+   * Optional metadata about the generation (if tidying was requested)
    */
   metadata?: {
     /**
@@ -123,6 +136,11 @@ function validateInput(data: unknown): GenerateRequest {
     throw new Error("mainText cannot be empty");
   }
 
+  // Validate tidy flag
+  if (input.tidy !== undefined && typeof input.tidy !== "boolean") {
+    throw new Error("tidy must be a boolean");
+  }
+
   // Optional parameters validation
   if (input.model !== undefined && typeof input.model !== "string") {
     throw new Error("model must be a string");
@@ -160,8 +178,16 @@ function validateInput(data: unknown): GenerateRequest {
     throw new Error("prefixId must be a string");
   }
 
+  if (input.prefixIds !== undefined && !Array.isArray(input.prefixIds)) {
+    throw new Error("prefixIds must be an array of strings");
+  }
+
   if (input.suffixId !== undefined && typeof input.suffixId !== "string") {
     throw new Error("suffixId must be a string");
+  }
+
+  if (input.suffixIds !== undefined && !Array.isArray(input.suffixIds)) {
+    throw new Error("suffixIds must be an array of strings");
   }
 
   if (
@@ -180,6 +206,7 @@ function validateInput(data: unknown): GenerateRequest {
 
   return {
     mainText: input.mainText,
+    tidy: input.tidy,
     model: input.model,
     temperature: input.temperature,
     maxTokens: input.maxTokens,
@@ -187,7 +214,9 @@ function validateInput(data: unknown): GenerateRequest {
     suffixText: input.suffixText,
     phaseText: input.phaseText,
     prefixId: input.prefixId,
+    prefixIds: input.prefixIds,
     suffixId: input.suffixId,
+    suffixIds: input.suffixIds,
     phasePromptId: input.phasePromptId,
     phaseNumber: input.phaseNumber,
   };
@@ -209,20 +238,26 @@ function checkApiKey(): void {
 /**
  * Call the OpenAI API to refine the main text
  * @param request - The request data
- * @returns Promise<GenerateResponse> - The response from the OpenAI API
+ * @returns Promise<string> - The refined text from the OpenAI API
  * @throws {OpenAIError} - If the API call fails
  */
-async function callOpenAI(request: GenerateRequest): Promise<GenerateResponse> {
+async function callOpenAI(
+  mainText: string,
+  model: string,
+  temperature: number,
+  maxTokens: number
+): Promise<{
+  refinedText: string;
+  model: string;
+  metadata: {
+    completionTokens?: number;
+    promptTokens?: number;
+    totalTokens?: number;
+  };
+}> {
   try {
     // Check API key before making the request
     checkApiKey();
-
-    const model = request.model || "gpt-4o";
-    const temperature = request.temperature || 0.7;
-    const maxTokens = request.maxTokens || 1000;
-
-    // Use proper prompt text for the API call
-    const textToRefine = request.mainText;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -240,7 +275,7 @@ async function callOpenAI(request: GenerateRequest): Promise<GenerateResponse> {
           },
           {
             role: "user",
-            content: `Please refine and tidy the following text:\n\n${textToRefine}`,
+            content: `Please refine and tidy the following text:\n\n${mainText}`,
           },
         ],
         temperature: temperature,
@@ -259,17 +294,8 @@ async function callOpenAI(request: GenerateRequest): Promise<GenerateResponse> {
     const data = await response.json();
     const refinedText = data.choices[0].message.content;
 
-    // Assemble the full prompt
-    const assembledPrompt = assemblePrompt(
-      request.prefixText || "",
-      request.phaseText || "",
-      refinedText,
-      request.suffixText || ""
-    );
-
     return {
-      refinedText: refinedText,
-      assembledPrompt: assembledPrompt,
+      refinedText,
       model: data.model,
       metadata: {
         completionTokens: data.usage?.completion_tokens,
@@ -305,29 +331,82 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Validate input
     const validatedData = validateInput(data);
 
-    // Call OpenAI API
-    const result = await callOpenAI(validatedData);
+    // Defaults
+    const model = validatedData.model || "gpt-4o";
+    const temperature = validatedData.temperature || 0.7;
+    const maxTokens = validatedData.maxTokens || 1000;
+    const shouldTidy = validatedData.tidy === true;
+
+    let finalText;
+    let modelUsed: string | undefined;
+    let metadata:
+      | {
+          completionTokens?: number;
+          promptTokens?: number;
+          totalTokens?: number;
+        }
+      | undefined;
+
+    // Tidy the text with AI if requested
+    if (shouldTidy) {
+      const openAIResult = await callOpenAI(
+        validatedData.mainText,
+        model,
+        temperature,
+        maxTokens
+      );
+
+      finalText = openAIResult.refinedText;
+      modelUsed = openAIResult.model;
+      metadata = openAIResult.metadata;
+    }
+
+    // Assemble the full prompt
+    const assembledPrompt = assemblePrompt(
+      validatedData.prefixText || "",
+      validatedData.phaseText || "",
+      finalText || validatedData.mainText,
+      validatedData.suffixText || ""
+    );
 
     // Log the generated prompt to history
+    let historyId;
     try {
       const historyEntry = await logGeneratedPrompt(
         validatedData.mainText,
-        result.refinedText,
-        validatedData.prefixId,
-        validatedData.suffixId,
+        finalText,
+        // Use prefixIds array if available, otherwise fall back to prefixId
+        validatedData.prefixIds ||
+          (validatedData.prefixId ? [validatedData.prefixId] : []),
+        // Use suffixIds array if available, otherwise fall back to suffixId
+        validatedData.suffixIds ||
+          (validatedData.suffixId ? [validatedData.suffixId] : []),
         validatedData.phasePromptId,
         validatedData.phaseNumber
       );
 
-      // Add history ID to the result
-      result.historyId = historyEntry.id;
+      // Store history ID
+      historyId = historyEntry.id;
     } catch (historyError) {
       console.error("Error logging prompt to history:", historyError);
       // We don't want to fail the whole request if history logging fails
     }
 
+    // Prepare response
+    const response: GenerateResponse = {
+      refinedText: finalText || validatedData.mainText,
+      assembledPrompt: assembledPrompt,
+      historyId,
+    };
+
+    // Add model and metadata if AI tidying was used
+    if (shouldTidy) {
+      response.model = modelUsed;
+      response.metadata = metadata;
+    }
+
     // Return successful response
-    return NextResponse.json(result, { status: 200 });
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
     // Handle validation errors
     if (error instanceof Error && !(error instanceof OpenAIError)) {
