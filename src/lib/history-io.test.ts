@@ -13,26 +13,24 @@ jest.mock("fs", () => ({
 
 // Mock the path module
 jest.mock("path", () => ({
-  join: jest.fn().mockReturnValue("/mock/path/to/prompt_history.json"),
+  join: jest.fn().mockReturnValue("/mock/path/to/history.json"),
   dirname: jest.fn().mockReturnValue("/mock/path/to"),
 }));
 
 describe("History I/O Utilities", () => {
-  const mockHistoryData: PromptHistoryData = {
-    entries: [
-      {
-        id: "456",
-        timestamp: "2025-03-17T14:30:00Z",
-        user_text: "Explain how React hooks work",
-        ai_refined_text:
-          "Please provide a detailed explanation of how React hooks work, including useState and useEffect",
-        prefix_id: "123",
-        suffix_id: "789",
-        phase_prompt_id: "234",
-        phase_number: "2",
-      },
-    ],
-  };
+  const mockHistoryData: PromptHistoryData = [
+    {
+      id: "456",
+      timestamp: "2025-03-17T14:30:00Z",
+      user_text: "Explain how React hooks work",
+      ai_refined_text:
+        "Please provide a detailed explanation of how React hooks work, including useState and useEffect",
+      prefix_ids: ["123"],
+      suffix_ids: ["789"],
+      phase_prompt_id: "234",
+      phase_number: "2",
+    },
+  ];
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -48,7 +46,7 @@ describe("History I/O Utilities", () => {
       const result = await readHistory();
 
       expect(fs.readFile).toHaveBeenCalledWith(
-        "/mock/path/to/prompt_history.json",
+        "/mock/path/to/history.json",
         "utf-8"
       );
       expect(result).toEqual(mockHistoryData);
@@ -84,7 +82,7 @@ describe("History I/O Utilities", () => {
         recursive: true,
       });
       expect(fs.writeFile).toHaveBeenCalledWith(
-        "/mock/path/to/prompt_history.json",
+        "/mock/path/to/history.json",
         JSON.stringify(mockHistoryData, null, 2),
         "utf-8"
       );

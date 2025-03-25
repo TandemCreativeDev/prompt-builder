@@ -3,12 +3,12 @@ import path from "path";
 import { PromptHistoryData } from "../types/history";
 
 /**
- * Path to the prompt_history.json file
+ * Path to the history.json file
  */
 const HISTORY_FILE_PATH = path.join(
   process.cwd(),
   "data",
-  "prompt_history.json"
+  "history.json"
 );
 
 /**
@@ -17,7 +17,7 @@ const HISTORY_FILE_PATH = path.join(
 export const DEFAULT_HISTORY_DATA: PromptHistoryData = [];
 
 /**
- * Reads prompt history data from the prompt_history.json file
+ * Reads prompt history data from the history.json file
  * Creates default data if the file doesn't exist
  *
  * @returns Promise resolving to the history data
@@ -44,7 +44,7 @@ export async function readHistory(): Promise<PromptHistoryData> {
 }
 
 /**
- * Writes prompt history data to the prompt_history.json file
+ * Writes prompt history data to the history.json file
  *
  * @param data The history data to write
  * @returns Promise that resolves when the write operation is complete
