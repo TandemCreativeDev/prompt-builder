@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   PhasesConfig,
-  PhasePromptsData,
+  PromptsData,
   PromptFragment,
   HistoryLogEntry,
 } from "@/types/prompts";
@@ -23,7 +23,7 @@ export interface PhasePromptPanelProps {
   /**
    * Map of phase prompts data by phase ID
    */
-  phasePromptsMap: Record<string, PhasePromptsData>;
+  phasePromptsMap: Record<string, PromptsData>;
   /**
    * Event handler for when a phase prompt is selected
    */
@@ -57,6 +57,10 @@ export interface PhasePromptPanelProps {
     newPrompt: Omit<PromptFragment, "id" | "length" | "history_log">
   ) => Promise<boolean>;
   /**
+   * Selected phase prompt ID for the current active phase
+   */
+  selectedPhasePromptId?: string;
+  /**
    * Optional CSS class name for styling
    */
   className?: string;
@@ -75,10 +79,11 @@ export function PhasePromptPanel({
   onRestoreVersion,
   onDeprecatePrompt,
   onCreatePrompt,
+  selectedPhasePromptId,
   className,
 }: PhasePromptPanelProps): JSX.Element {
   const [activePhase, setActivePhase] = React.useState<string>(
-    phasesConfig.phases.length > 0 ? phasesConfig.phases[0].id : ""
+    phasesConfig.length > 0 ? phasesConfig[0].id : ""
   );
   const [searchTerm, setSearchTerm] = React.useState("");
   const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
@@ -93,14 +98,14 @@ export function PhasePromptPanel({
     if (phasePromptsMap && activePhase && phasePromptsMap[activePhase]) {
       return phasePromptsMap[activePhase];
     }
-    return { prompts: [] };
+    return [];
   }, [phasePromptsMap, activePhase]);
 
   // Extract all unique tags from current phase prompts
   const allTags = React.useMemo(() => {
     const tagsSet = new Set<string>();
-    if (currentPhasePrompts && currentPhasePrompts.prompts) {
-      currentPhasePrompts.prompts.forEach((prompt) => {
+    if (currentPhasePrompts) {
+      currentPhasePrompts.forEach((prompt) => {
         prompt.tags.forEach((tag) => tagsSet.add(tag));
       });
     }
@@ -109,11 +114,11 @@ export function PhasePromptPanel({
 
   // Filter phase prompts based on search term and selected tags
   const filteredPrompts = React.useMemo(() => {
-    if (!currentPhasePrompts || !currentPhasePrompts.prompts) {
+    if (!currentPhasePrompts || !currentPhasePrompts) {
       return [];
     }
 
-    return currentPhasePrompts.prompts.filter((prompt) => {
+    return currentPhasePrompts.filter((prompt) => {
       // Filter out deprecated prompts
       if (prompt.deprecated) return false;
 
@@ -189,8 +194,7 @@ export function PhasePromptPanel({
 
   // Find current phase name
   const currentPhaseName =
-    phasesConfig.phases.find((phase) => phase.id === activePhase)?.name ||
-    "Phase";
+    phasesConfig.find((phase) => phase.id === activePhase)?.name || "Phase";
 
   return (
     <div
@@ -217,14 +221,14 @@ export function PhasePromptPanel({
         className="w-full mb-4"
       >
         <TabsList className="w-full">
-          {phasesConfig.phases.map((phase) => (
+          {phasesConfig.map((phase) => (
             <TabsTrigger key={phase.id} value={phase.id} className="flex-1">
               {phase.name}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        {phasesConfig.phases.map((phase) => (
+        {phasesConfig.map((phase) => (
           <TabsContent key={phase.id} value={phase.id} className="mt-2">
             <p className="text-sm text-muted-foreground mb-2">
               {phase.description}
@@ -337,6 +341,8 @@ export function PhasePromptPanel({
                 onDeprecate={(promptId) =>
                   onDeprecatePrompt?.(promptId, activePhase)
                 }
+                isSelected={selectedPhasePromptId === prompt.id}
+                selectionMode="single"
               />
             ))
           )}
