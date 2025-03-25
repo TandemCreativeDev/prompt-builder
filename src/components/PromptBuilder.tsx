@@ -294,6 +294,37 @@ export function PromptBuilder({
     navigator.clipboard.writeText(text);
   };
 
+  // Calculate textarea height based on selected prefixes and suffixes
+  const getTextareaHeight = () => {
+    const baseHeight =
+      selectedPrefixes.length > 0 || selectedSuffixes.length > 0
+        ? "h-[calc(100%-220px)]" // Reduced height when prompts are selected
+        : "h-[calc(100%-24px)]"; // Full height when no prompts are selected
+    return baseHeight;
+  };
+
+  // Helper function to remove a prefix
+  const handleRemovePrefix = (prefixId: string) => {
+    if (onSelectPrefix) {
+      // Find the prefix object to deselect it
+      const prefixToRemove = prefixData.find((p) => p.id === prefixId);
+      if (prefixToRemove) {
+        onSelectPrefix(prefixToRemove); // Toggling selection
+      }
+    }
+  };
+
+  // Helper function to remove a suffix
+  const handleRemoveSuffix = (suffixId: string) => {
+    if (onSelectSuffix) {
+      // Find the suffix object to deselect it
+      const suffixToRemove = suffixData.find((s) => s.id === suffixId);
+      if (suffixToRemove) {
+        onSelectSuffix(suffixToRemove); // Toggling selection
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full gap-4">
       {/* Top half - Phase Prompt Panel */}
@@ -360,46 +391,56 @@ export function PromptBuilder({
       {/* Bottom Panels - Three Columns */}
       <div className="grid grid-cols-3 gap-4 h-[40vh] ">
         {/* Left Panel - Prefix */}
-        <Card className="h-full">
-          <CardContent className="p-4 h-full">
-            <div className="mb-2">
-              {selectedPrefixes.length > 0 && (
-                <div className="bg-muted p-2 rounded-md text-sm mb-2">
-                  <p className="font-medium">
-                    Selected Prefixes ({selectedPrefixes.length}):
-                  </p>
-                  {selectedPrefixes.map((prefix) => (
-                    <p key={prefix.id} className="truncate">
-                      {prefix.text.substring(0, 50)}...
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="h-[35vh] w-full overflow-hidden">
-              <PromptPanel
-                type="Prefix"
-                prompts={prefixData}
-                onSelectPrompt={onSelectPrefix}
-                onUpdatePrompt={onUpdatePrefix}
-                onRestoreVersion={onRestorePrefix}
-                onDeprecatePrompt={onDeprecatePrefix}
-                onCreatePrompt={onCreatePrefix}
-                selectedPromptIds={selectedPrefixIds}
-                className="h-full overflow-auto"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <PromptPanel
+          type="Prefix"
+          prompts={prefixData}
+          onSelectPrompt={onSelectPrefix}
+          onUpdatePrompt={onUpdatePrefix}
+          onRestoreVersion={onRestorePrefix}
+          onDeprecatePrompt={onDeprecatePrefix}
+          onCreatePrompt={onCreatePrefix}
+          selectedPromptIds={selectedPrefixIds}
+          className="h-full overflow-auto"
+        />
 
         {/* Center Panel - Main Text */}
         <Card className="h-full overflow-hidden">
-          <CardContent className="p-4 h-full flex flex-col">
-            <h2 className="text-lg font-semibold mb-2">Main Text</h2>
+          <CardContent className="h-full flex flex-col">
+            <h2 className="text-xl font-bold mb-4">Main Text</h2>
             <div className="flex-grow relative">
+              {/* Selected Prefixes */}
+              {selectedPrefixes.length > 0 && (
+                <div className="mb-2">
+                  <div className="bg-muted p-2 rounded-md text-sm mb-2">
+                    <p className="font-medium">
+                      Selected Prefixes ({selectedPrefixes.length}):
+                    </p>
+                    {selectedPrefixes.map((prefix) => (
+                      <div
+                        key={prefix.id}
+                        className="flex justify-between items-center mt-1"
+                      >
+                        <p className="truncate flex-grow">
+                          {prefix.text.substring(0, 50)}...
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                          onClick={() => handleRemovePrefix(prefix.id)}
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Main Textarea */}
               <textarea
                 ref={textareaRef}
-                className="w-full h-full min-h-[200px] p-2 border rounded-md resize-none"
+                className={`w-full p-2 border rounded-md resize-none ${getTextareaHeight()}`}
                 placeholder="Type your prompt here... Use keyboard shortcuts: / for general options, # for phase prompts, $ for prefixes, @ for suffixes"
                 value={mainText}
                 onChange={(e) => onMainTextChange(e.target.value)}
@@ -547,42 +588,52 @@ export function PromptBuilder({
                   </div>
                 </div>
               )}
+
+              {/* Selected Suffixes */}
+              {selectedSuffixes.length > 0 && (
+                <div className="mt-2">
+                  <div className="bg-muted p-2 rounded-md text-sm">
+                    <p className="font-medium">
+                      Selected Suffixes ({selectedSuffixes.length}):
+                    </p>
+                    {selectedSuffixes.map((suffix) => (
+                      <div
+                        key={suffix.id}
+                        className="flex justify-between items-center mt-1"
+                      >
+                        <p className="truncate flex-grow">
+                          {suffix.text.substring(0, 50)}...
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                          onClick={() => handleRemoveSuffix(suffix.id)}
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
         {/* Right Panel - Suffix */}
-        <Card className="h-full">
-          <CardContent className="p-4 h-full">
-            <div className="mb-2">
-              {selectedSuffixes.length > 0 && (
-                <div className="bg-muted p-2 rounded-md text-sm mb-2">
-                  <p className="font-medium">
-                    Selected Suffixes ({selectedSuffixes.length}):
-                  </p>
-                  {selectedSuffixes.map((suffix) => (
-                    <p key={suffix.id} className="truncate">
-                      {suffix.text.substring(0, 50)}...
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="h-[35vh] w-full overflow-hidden">
-              <PromptPanel
-                type="Suffix"
-                prompts={suffixData}
-                onSelectPrompt={onSelectSuffix}
-                onUpdatePrompt={onUpdateSuffix}
-                onRestoreVersion={onRestoreSuffix}
-                onDeprecatePrompt={onDeprecateSuffix}
-                onCreatePrompt={onCreateSuffix}
-                selectedPromptIds={selectedSuffixIds}
-                className="h-full overflow-auto"
-              />
-            </div>
-          </CardContent>
-        </Card>
+
+        <PromptPanel
+          type="Suffix"
+          prompts={suffixData}
+          onSelectPrompt={onSelectSuffix}
+          onUpdatePrompt={onUpdateSuffix}
+          onRestoreVersion={onRestoreSuffix}
+          onDeprecatePrompt={onDeprecateSuffix}
+          onCreatePrompt={onCreateSuffix}
+          selectedPromptIds={selectedSuffixIds}
+          className="h-full overflow-auto"
+        />
       </div>
     </div>
   );
