@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readSuffixes, addSuffix, updateSuffix } from "@/lib/prompts-io";
+import { readPrompts, addPrompt, updatePrompt } from "@/lib/prompts-io";
 import { PromptFragment } from "@/types/prompts";
 import { generatePromptId } from "@/lib/id-generator";
 
@@ -9,7 +9,7 @@ import { generatePromptId } from "@/lib/id-generator";
  */
 export async function GET() {
   try {
-    const data = await readSuffixes();
+    const data = await readPrompts("suffixes");
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("Error reading suffixes:", error);
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     };
 
     // Add the suffix and return the updated data
-    await addSuffix(suffix);
+    await addPrompt("suffixes", suffix);
     return NextResponse.json(suffix, { status: 201 });
   } catch (error) {
     console.error("Error adding suffix:", error);
@@ -67,7 +67,7 @@ export async function PUT(request: Request) {
     suffix.length = suffix.text.length;
 
     // Update the suffix and return the updated data
-    await updateSuffix(suffix);
+    await updatePrompt("suffixes", suffix);
     return NextResponse.json(suffix, { status: 200 });
   } catch (error) {
     console.error("Error updating suffix:", error);
