@@ -40,36 +40,29 @@ export function assemblePrompt(
 export async function logGeneratedPrompt(
   userText: string,
   aiRefinedText?: string,
-  prefixId?: string,
-  suffixId?: string,
+  prefixIds?: string[],
+  suffixIds?: string[],
   phasePromptId?: string,
   phaseNumber?: string
 ): Promise<PromptHistoryEntry> {
   try {
-    // Read current history
     const history = await readHistory();
 
-    // Create new history entry
     const newEntry: PromptHistoryEntry = {
       id: generateHistoryId(),
       timestamp: new Date().toISOString(),
       user_text: userText,
-      ai_refined_text: aiRefinedText,
-      prefix_id: prefixId,
-      suffix_id: suffixId,
+      ...(aiRefinedText && { ai_refined_text: aiRefinedText }),
+      prefix_ids: prefixIds,
+      suffix_ids: suffixIds,
       phase_prompt_id: phasePromptId,
       phase_number: phaseNumber,
     };
 
-    // Add entry to history
-    const updatedHistory: PromptHistoryData = {
-      entries: [...history.entries, newEntry],
-    };
+    const updatedHistory: PromptHistoryData = [...history, newEntry];
 
-    // Write updated history back to file
     await writeHistory(updatedHistory);
 
-    // Return the new entry
     return newEntry;
   } catch (error) {
     console.error("Error logging generated prompt:", error);
