@@ -14,9 +14,7 @@ const HISTORY_FILE_PATH = path.join(
 /**
  * Default empty history data structure
  */
-export const DEFAULT_HISTORY_DATA: PromptHistoryData = {
-  entries: [],
-};
+export const DEFAULT_HISTORY_DATA: PromptHistoryData = [];
 
 /**
  * Reads prompt history data from the prompt_history.json file
