@@ -8,41 +8,21 @@ import { deprecatePrompt } from "@/lib/prompts-io";
 export async function POST(request: Request) {
   try {
     // Get the prompt data from the request
-    const { promptId, promptType, phaseId } = await request.json();
+    const { promptId, filename } = await request.json();
 
     // Validate required parameters
-    if (!promptId || !promptType) {
+    if (!promptId || !filename) {
       return NextResponse.json(
         { error: "Missing required parameters: promptId and promptType" },
         { status: 400 }
       );
     }
 
-    // Validate promptType
-    if (!['prefix', 'suffix', 'phase'].includes(promptType)) {
-      return NextResponse.json(
-        { error: "Invalid promptType. Must be one of: prefix, suffix, phase" },
-        { status: 400 }
-      );
-    }
-
-    // Validate phaseId for phase prompts
-    if (promptType === 'phase' && !phaseId) {
-      return NextResponse.json(
-        { error: "Missing required parameter: phaseId (required for phase prompts)" },
-        { status: 400 }
-      );
-    }
-
     // Deprecate the prompt
-    await deprecatePrompt(
-      promptId,
-      promptType as 'prefix' | 'suffix' | 'phase',
-      phaseId
-    );
+    await deprecatePrompt(promptId, filename);
 
     return NextResponse.json(
-      { message: `Successfully deprecated ${promptType} prompt: ${promptId}` },
+      { message: `Successfully deprecated ${filename} prompt: ${promptId}` },
       { status: 200 }
     );
   } catch (error) {
